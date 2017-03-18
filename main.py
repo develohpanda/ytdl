@@ -38,6 +38,7 @@ def __download_tracks__(messages):
         else:
             message.delete()
 
+
 def __upload_tracks__():
     "Uploads any tracks in the downloaded folder"
 
@@ -50,7 +51,12 @@ def __upload_tracks__():
         return
 
     for trackdir in trackdirs:
-        gmupload.upload(trackdir)
+        try:
+            success = gmupload.upload(trackdir)
+            if success:
+                os.rmdir(trackdir)
+        except:
+            print 'Failed to upload {}'.format(trackdir)
 
 def run():
     "Main run method"

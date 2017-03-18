@@ -4,12 +4,12 @@ from __future__ import unicode_literals
 import logging
 import youtube_dl
 
-def my_hook(hook):
+def __my_hook__(hook):
     "Fires when youtube_dl wants to send a notification of an event"
     if hook['status'] == 'finished':
         print 'Done downloading, now converting file ' + hook['filename']
 
-def ytdownload(urls):
+def download(urls):
     "Downloads a given list of urls as mp3"
     ydl_opts = {
         'format': 'bestaudio',
@@ -18,7 +18,7 @@ def ytdownload(urls):
         'writeinfojson': True,
         'outtmpl': 'c:/ytdl/downloads/%(id)s/%(title)s.%(ext)s',
         'logger': logging.getLogger(),
-        'progress_hooks': [my_hook],
+        'progress_hooks': [__my_hook__],
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
