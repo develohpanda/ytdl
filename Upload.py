@@ -1,9 +1,9 @@
-"""The document"""
+"This is used for uploading downloaded track to google play music"
 
 from gmusicapi import Musicmanager
 
-def run():
-    """Downloads the stuff."""
+def upload():
+    "Does the upload."
 
     manager = Musicmanager()
     manager.login(
@@ -25,4 +25,4 @@ def run():
         print "Couldn't upload " + reason[0] + " because " + reason[1]
 
 if __name__ is '__main__':
-    run()
+    upload()
