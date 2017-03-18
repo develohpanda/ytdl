@@ -2,7 +2,7 @@
 
 from gmusicapi import Musicmanager
 
-def upload():
+def upload(test):
     "Does the upload."
 
     manager = Musicmanager()
@@ -24,5 +24,4 @@ def upload():
         reason = list(upload_result[2].viewitems())[0]
         print "Couldn't upload " + reason[0] + " because " + reason[1]
 
-if __name__ is '__main__':
-    upload()
+upload('test')

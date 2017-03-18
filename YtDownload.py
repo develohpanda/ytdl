@@ -6,11 +6,11 @@ import youtube_dl
 class MyLogger(object):
     "Logger passthrough that only prints errors"
     def debug(self, msg):
-        """Passthrough"""
+        "Passthrough"
         pass
 
     def warning(self, msg):
-        """Passthrough"""
+        "Passthrough"
         pass
 
     def error(self, msg):
@@ -28,14 +28,20 @@ def ytdownload(urls):
         'format': 'bestaudio',
         'noplaylist': True,
         'writethumbnail': True,
-        'sleep_interval': 5,
-        'max_sleep_interval': 10,
+        'writeinfojson': True,
+        'outtmpl': '../downloads/%(id)s/%(title)s.%(ext)s',
         'logger': MyLogger(),
-        'progress_hooks': [my_hook]
+        'progress_hooks': [my_hook],
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }]
     }
+
+    print 'Downloading ' + ', '.join(urls)
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download(urls)
 
-if __name__ is '__main__':
-    ytdownload('https://www.youtube.com/watch?v=EsefK-eyiPo')
+ytdownload(['https://www.youtube.com/watch?v=ouycfHgjky4'])
