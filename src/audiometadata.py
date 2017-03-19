@@ -3,6 +3,8 @@
 import json
 import eyed3
 import oshelper
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC, error
 
 class TrackInfo(object):
     "Information about a particular track"
@@ -45,16 +47,36 @@ class AudioMetadata(object):
                 audiofile.initTag()
             return audiofile
 
+    # def apply_album_art(self, album_art_file):
+    #     "Embeds album art into the track file"
+
+    #     if album_art_file == oshelper.DEFAULT_FILE_NAME:
+    #         return
+
+    #     audiofile = self.__load__()
+
+    #     audiofile.tag.images.set(3, open(album_art_file, 'rb').read(), 'image/jpeg')
+    #     audiofile.tag.save()
+
     def apply_album_art(self, album_art_file):
         "Embeds album art into the track file"
 
         if album_art_file == oshelper.DEFAULT_FILE_NAME:
             return
 
-        audiofile = self.__load__()
+        audio = ID3(self.track_file, v2_version=3)
+        audio.save(v2_version=3)
 
-        audiofile.tag.images.set(3, open(album_art_file, 'rb').read(), 'image/jpeg')
-        audiofile.tag.save()
+        audio = MP3(self.track_file)
+        audio.tags.add(
+            APIC(
+                encoding=3, # 3 is for utf-8
+                mime='image/jpeg', # image/jpeg or image/png
+                type=3, # 3 is for the cover image
+                desc=u'Cover',
+                data=open(album_art_file, 'rb').read()
+            ))
+        audio.save(v2_version=3)
 
     def apply_track_info(self, info):
         "Sets the appropriate tags in the mp3 file extracting from the track info file"
@@ -68,7 +90,7 @@ class AudioMetadata(object):
         audiofile.tag.album_artist = info.uploader
         audiofile.tag.album = info.full_title
         audiofile.tag.title = info.full_title
-        audiofile.tag.year = info.upload_year
+        audiofile.tag.date = info.upload_year
         audiofile.tag.comments.set(info.url)
         audiofile.tag.save()
 

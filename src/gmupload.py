@@ -50,7 +50,7 @@ class GoolgeMusicUploader(object):
         "Does the upload."
 
         files = oshelper.absolute_files(self.track_dir)
-        
+
         info = TrackInfo(oshelper.get_track_info_file(files))
         info.load()
 
@@ -65,7 +65,7 @@ class GoolgeMusicUploader(object):
             return UploadResult(False, self.track_dir, info.full_title, 'MP3 Track file not found')
 
         audio_metadata = AudioMetadata(track_file)
-        audio_metadata.apply_album_art(oshelper.get_album_art_file(files))
         audio_metadata.apply_track_info(info)
+        audio_metadata.apply_album_art(oshelper.get_album_art_file(files))
 
         return self.__upload_file__(track_file, info.full_title)
