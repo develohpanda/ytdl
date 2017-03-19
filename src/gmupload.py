@@ -39,12 +39,8 @@ def upload(trackdir):
     if track_file == oshelper.DEFAULT_FILE_NAME:
         return False
 
-    album_art_file = oshelper.get_album_art_file(files)
-    if album_art_file != oshelper.DEFAULT_FILE_NAME:
-        audiometadata.apply_album_art(track_file, album_art_file)
-
-    track_info_file = oshelper.get_track_info_file(files)
-    if track_info_file != oshelper.DEFAULT_FILE_NAME:
-        audiometadata.apply_track_info(track_file, track_info_file)
+    audio_metadata = audiometadata.AudioMetadata(track_file)
+    audio_metadata.apply_album_art(oshelper.get_album_art_file)
+    audio_metadata.apply_track_info(oshelper.get_track_info_file)
 
     return __upload_file__(track_file)
