@@ -1,8 +1,8 @@
 "This is used for uploading downloaded track to google play music"
 
-import customerrors
 import oshelper
-import audiometadata
+from customerrors import AuthError, DirectoryNotFoundError
+from audiometadata import AudioMetadata
 from gmusicapi import Musicmanager
 
 class UploadResult(object):
@@ -13,46 +13,52 @@ class UploadResult(object):
         self.track_dir = track_dir
         self.message = message
 
-def __upload_file__(track_file, track_dir):
-    credential_file = '..\\gmusicapi-musicmanager.cred'
-    manager = Musicmanager()
-    if not manager.login(credential_file, '09:32:24:12:CD:AA', 'ytdl-bot'):
-        raise customerrors.AuthError(
-            'Could not authenticate music manager using {}'.format(credential_file))
+class GoolgeMusicUploader(object):
+    "Google music upload class"
 
-    upload_result = manager.upload(track_file)
+    def __init__(self, track_dir):
+        if not oshelper.isdir(track_dir):
+            raise DirectoryNotFoundError(track_dir)
 
-    if upload_result[0] != {}:
-        return UploadResult(True, track_dir, upload_result[0])
+        self.track_dir = track_dir
 
-    elif upload_result[1] != {}:
-        return UploadResult(True, track_dir, upload_result[1])
+    def __upload_file__(self, track_file):
+        credential_file = '..\\gmusicapi-musicmanager.cred'
+        manager = Musicmanager()
+        if not manager.login(credential_file, '09:32:24:12:CD:AA', 'ytdl-bot'):
+            raise AuthError(
+                'Could not authenticate music manager using {}'.format(credential_file))
 
-    elif upload_result[2] != {}:
-        reason = list(upload_result[2].viewitems())[0]
-        return UploadResult(
-            False,
-            track_dir,
-            'Couldn\'t upload {} because {}'.format(reason[0], reason[1]))
+        upload_result = manager.upload(track_file)
 
-def upload(track_dir):
-    "Does the upload and returns the track id if successfully uploaded."
+        if upload_result[0] != {}:
+            return UploadResult(True, self.track_dir, upload_result[0])
 
-    if not oshelper.isdir(track_dir):
-        return UploadResult(False, track_dir, 'Track directory does not exist')
+        elif upload_result[1] != {}:
+            return UploadResult(True, self.track_dir, upload_result[1])
 
-    files = oshelper.absolute_files(track_dir)
+        elif upload_result[2] != {}:
+            reason = list(upload_result[2].viewitems())[0]
+            return UploadResult(
+                False,
+                self.track_dir,
+                'Couldn\'t upload {} because {}'.format(reason[0], reason[1]))
 
-    locked = oshelper.lock_file_exists(track_dir)
-    if locked:
-        return UploadResult(False, track_dir, 'Lock file exists')
+    def upload(self):
+        "Does the upload."
 
-    track_file = oshelper.get_track_file(files)
-    if track_file == oshelper.DEFAULT_FILE_NAME:
-        return UploadResult(False, track_dir, 'MP3 Track file not found')
+        files = oshelper.absolute_files(self.track_dir)
 
-    audio_metadata = audiometadata.AudioMetadata(track_file)
-    audio_metadata.apply_album_art(oshelper.get_album_art_file)
-    audio_metadata.apply_track_info(oshelper.get_track_info_file)
+        locked = oshelper.lock_file_exists(self.track_dir)
+        if locked:
+            return UploadResult(False, self.track_dir, 'Lock file exists')
 
-    return __upload_file__(track_file, track_dir)
+        track_file = oshelper.get_track_file(files)
+        if track_file == oshelper.DEFAULT_FILE_NAME:
+            return UploadResult(False, self.track_dir, 'MP3 Track file not found')
+
+        audio_metadata = AudioMetadata(track_file)
+        audio_metadata.apply_album_art(oshelper.get_album_art_file)
+        audio_metadata.apply_track_info(oshelper.get_track_info_file)
+
+        return self.__upload_file__(track_file)

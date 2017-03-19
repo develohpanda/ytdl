@@ -16,8 +16,8 @@ class AuthError(Error):
     def __init__(self, message):
         super(AuthError, self).__init__(message)
 
-class FolderNotFoundError(Error):
-    """Exception raised when folder does not exist
+class DirectoryNotFoundError(Error):
+    """Exception raised when directory does not exist
 
     Attributes:
         message -- explanation of the error,
@@ -25,5 +25,5 @@ class FolderNotFoundError(Error):
     """
 
     def __init__(self, path):
-        super(FolderNotFoundError, self).__init__('Folder not found')
+        super(DirectoryNotFoundError, self).__init__('Directory not found')
         self.path = path

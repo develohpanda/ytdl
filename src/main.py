@@ -1,10 +1,10 @@
 "Main"
 
 import json
-import os
 import oshelper
-import audiodownload
-import gmupload
+from customerrors import AuthError, DirectoryNotFoundError
+from audiodownload import AudioDownload
+from gmupload import GoolgeMusicUploader
 import boto3
 
 def __get_messages__():
@@ -14,8 +14,9 @@ def __get_messages__():
         sqs = boto3.resource('sqs')
         queue = sqs.Queue('https://sqs.us-east-1.amazonaws.com/342179033824/to-download')
         return queue.receive_messages(MaxNumberOfMessages=10)
+
     except boto3.exceptions.Boto3Error as awserror:
-        #TODO Log to raygun
+#TODO Log to raygun
         print awserror.message
         return []
 
@@ -34,13 +35,13 @@ def __download_tracks__(downloads_path):
         payload = json.loads(message.body)
         url = payload['link']
 
-        download_result = audiodownload.AudioDownload(downloads_path).download([url])
+        download_result = AudioDownload(downloads_path).download([url])
 
         if url in download_result.successful_urls:
             message.delete()
 
         if url in download_result.failed_urls:
-            #TODO Log to raygun
+#TODO Log to raygun
             print 'Failed to download {}'.format(url)
     return True
 
@@ -52,18 +53,24 @@ def __upload_tracks__(downloads_path):
         return
 
     for track_dir in track_dirs:
-        upload_result = gmupload.upload(track_dir)
-        if upload_result.success:
-            os.rmdir(upload_result.track_dir)
+        try:
+            upload_result = GoolgeMusicUploader(track_dir).upload()
+        except AuthError as auth_error:
+            print auth_error.message
+        except DirectoryNotFoundError as dir_not_found:
+            print "{} - {}".format(dir_not_found.message, dir_not_found.path)
         else:
-            #TODO Log to raygun
-            print '{} - {}'.format(upload_result.message, upload_result.track_dir)
+            if upload_result.success:
+                oshelper.remove(upload_result.track_dir)
+            else:
+#TODO Log to raygun
+                print '{} - {}'.format(upload_result.message, upload_result.track_dir)
 
 def run():
     "Main run method"
-    #TODO Add config file and load data from config file
+#TODO Add config file and load data from config file
     home_path = 'c:/users/opend'
-    downloads_path = os.path.join(home_path, '/ytdl/downloads')
+    downloads_path = oshelper.join_paths(home_path, '/ytdl/downloads')
 
     while __download_tracks__(downloads_path):
         pass

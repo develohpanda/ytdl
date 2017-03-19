@@ -57,3 +57,14 @@ def get_track_info_file(files):
 def isdir(path):
     "Checks if path is a directory"
     return os.path.isdir(path)
+
+def remove(path):
+    "Delete file or directory as appropriate"
+    if os.path.isdir(path):
+        os.rmdir(path)
+    if os.path.isfile(path):
+        os.remove(path)
+
+def join_paths(first, second):
+    "Joins two paths into one"
+    return os.path.join(first, second)
