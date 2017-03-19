@@ -58,7 +58,7 @@ class GoolgeMusicUploader(object):
             return UploadResult(False, self.track_dir, 'MP3 Track file not found')
 
         audio_metadata = AudioMetadata(track_file)
-        audio_metadata.apply_album_art(oshelper.get_album_art_file)
-        audio_metadata.apply_track_info(oshelper.get_track_info_file)
+        audio_metadata.apply_album_art(oshelper.get_album_art_file(files))
+        audio_metadata.apply_track_info(oshelper.get_track_info_file(files))
 
         return self.__upload_file__(track_file)

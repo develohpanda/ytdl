@@ -1,6 +1,7 @@
 "OS helper"
 
 import os
+import shutil
 
 DEFAULT_FILE_NAME = ''
 LOCK_FILE_NAME = 'LOCK'
@@ -24,8 +25,6 @@ def try_create_lock_file(path):
     lock_file_path = os.path.join(path, LOCK_FILE_NAME)
     if os.path.isdir(path) and not os.path.exists(lock_file_path):
         open(lock_file_path, 'w+')
-        return True
-    return False
 
 def lock_file_exists(path):
     "Determines whether or not a LOCK file exists to prevent any changes"
@@ -38,9 +37,7 @@ def try_delete_lock_file(path):
     "Deletes the lock file at the specified path"
     lock_file_path = os.path.join(path, LOCK_FILE_NAME)
     if os.path.exists(lock_file_path):
-        os.remove(lock_file_path)
-        return True
-    return False
+        remove(lock_file_path)
 
 def get_track_file(files):
     "Gets the mp3 file from this folder (*.mp3)"
@@ -61,7 +58,7 @@ def isdir(path):
 def remove(path):
     "Delete file or directory as appropriate"
     if os.path.isdir(path):
-        os.rmdir(path)
+        shutil.rmtree(path)
     if os.path.isfile(path):
         os.remove(path)
 

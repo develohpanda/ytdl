@@ -8,35 +8,29 @@ import youtube_dl
 class DownloadResult(object):
     "Represents the result of downloading tracks"
 
-    def __init__(self, successful_urls, failed_urls):
-        self.successful_urls = successful_urls
-        self.failed_urls = failed_urls
+    def __init__(self, success, message):
+        self.success = success
+        self.message = message
 
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"
 
     def __init__(self, downloads_path):
-        self.folders_with_lock_files = []
-        self.failed_urls = []
-        self.successful_urls = []
-
         self.downloads_path = downloads_path
+        self.downloaded_to_folder = ''
 
     def __my_hook__(self, hook):
-        if hook['status'] == 'error':
-            self.failed_urls.append(u'url')
-
-        elif hook['status'] == 'downloading':
+        if hook['status'] == 'downloading':
             folder_path = oshelper.os.path.dirname(hook['filename'])
-            if oshelper.try_create_lock_file(folder_path):
-                self.folders_with_lock_files.append(folder_path)
+            oshelper.try_create_lock_file(folder_path)
 
         elif hook['status'] == 'finished':
-            self.successful_urls.append(u'url')
+            self.downloaded_to_folder = oshelper.os.path.dirname(hook['filename'])
 
-    def download(self, urls):
-        "Downloads a given list of urls as mp3"
-        output_template = oshelper.os.path.join(self.downloads_path, '/%(id)s/%(title)s.%(ext)s')
+    def download(self, url):
+        "Downloads a url as mp3"
+        self.downloaded_to_folder = ''
+        output_template = oshelper.join_paths(self.downloads_path, '%(id)s\\%(title)s.%(ext)s')
         ydl_opts = {
             'format': 'bestaudio',
             'noplaylist': True,
@@ -52,9 +46,11 @@ class AudioDownload(object):
             }]
         }
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download(urls)
-        for folder in self.folders_with_lock_files:
-            oshelper.try_delete_lock_file(folder)
-
-        return DownloadResult(self.successful_urls, self.failed_urls)
+        try:
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([url])
+            return DownloadResult(True, self.downloaded_to_folder)
+        except  youtube_dl.DownloadError as dlerror:
+            return DownloadResult(False, dlerror.message)
+        finally:
+            oshelper.try_delete_lock_file(self.downloaded_to_folder)

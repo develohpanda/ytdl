@@ -13,10 +13,10 @@ def __get_messages__():
     try:
         sqs = boto3.resource('sqs')
         queue = sqs.Queue('https://sqs.us-east-1.amazonaws.com/342179033824/to-download')
-        return queue.receive_messages(MaxNumberOfMessages=10)
+        return queue.receive_messages(MaxNumberOfMessages=10, VisibilityTimeout=300)
 
     except boto3.exceptions.Boto3Error as awserror:
-#TODO Log to raygun
+        #TODO Log to raygun
         print awserror.message
         return []
 
@@ -35,14 +35,14 @@ def __download_tracks__(downloads_path):
         payload = json.loads(message.body)
         url = payload['link']
 
-        download_result = AudioDownload(downloads_path).download([url])
+        download_result = AudioDownload(downloads_path).download(url)
 
-        if url in download_result.successful_urls:
+        if download_result.success:
             message.delete()
-
-        if url in download_result.failed_urls:
-#TODO Log to raygun
+        else:
+            #TODO Log to raygun
             print 'Failed to download {}'.format(url)
+
     return True
 
 def __upload_tracks__(downloads_path):
@@ -61,18 +61,22 @@ def __upload_tracks__(downloads_path):
             print "{} - {}".format(dir_not_found.message, dir_not_found.path)
         else:
             if upload_result.success:
-                oshelper.remove(upload_result.track_dir)
+                pass
+                #oshelper.remove(upload_result.track_dir)
             else:
-#TODO Log to raygun
+                #TODO Log to raygun
                 print '{} - {}'.format(upload_result.message, upload_result.track_dir)
 
 def run():
     "Main run method"
-#TODO Add config file and load data from config file
-    home_path = 'c:/users/opend'
-    downloads_path = oshelper.join_paths(home_path, '/ytdl/downloads')
+    #TODO Add config file and load data from config file
+    home_path = 'c:\\users\\opend'
+    downloads_path = 'ytdl\\downloads'
+    full_path = oshelper.join_paths(home_path, downloads_path)
 
-    while __download_tracks__(downloads_path):
+    while __download_tracks__(full_path):
         pass
 
-    __upload_tracks__(downloads_path)
+    __upload_tracks__(full_path)
+
+run()
