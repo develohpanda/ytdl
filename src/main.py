@@ -15,7 +15,7 @@ def __get_messages__():
         queue = sqs.Queue('https://sqs.us-east-1.amazonaws.com/342179033824/to-download')
         return queue.receive_messages(MaxNumberOfMessages=10)
     except boto3.exceptions.Boto3Error as awserror:
-        #TODO LOG
+        #TODO Log to raygun
         print awserror.message
         return []
 
@@ -40,7 +40,7 @@ def __download_tracks__(downloads_path):
             message.delete()
 
         if url in download_result.failed_urls:
-            #TODO LOG
+            #TODO Log to raygun
             print 'Failed to download {}'.format(url)
     return True
 
@@ -56,12 +56,14 @@ def __upload_tracks__(downloads_path):
         if upload_result.success:
             os.rmdir(upload_result.track_dir)
         else:
-            #TODO LOG
+            #TODO Log to raygun
             print '{} - {}'.format(upload_result.message, upload_result.track_dir)
 
 def run():
     "Main run method"
-    downloads_path = 'c:/ytdl/downloads'
+    #TODO Add config file and load data from config file
+    home_path = 'c:/users/opend'
+    downloads_path = os.path.join(home_path, '/ytdl/downloads')
 
     while __download_tracks__(downloads_path):
         pass
