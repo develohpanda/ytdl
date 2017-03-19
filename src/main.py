@@ -13,8 +13,7 @@ def __get_messages__():
     sqs = boto3.resource('sqs')
     queue = sqs.Queue('https://sqs.us-east-1.amazonaws.com/342179033824/to-download')
     return queue.receive_messages(
-        MaxNumberOfMessages=10,
-        VisibilityTimeout=43200
+        MaxNumberOfMessages=10
     )
 
 def __download_tracks__():
@@ -24,7 +23,7 @@ def __download_tracks__():
 
     if len(messages) == 0:
         print 'No new tracks in queue for download'
-        return
+        return False
 
     print 'Downloading {} tracks'.format(len(messages))
     for message in messages:
@@ -36,6 +35,7 @@ def __download_tracks__():
         else:
             message.delete()
 
+    return True
 
 def __upload_tracks__():
     "Uploads any tracks in the downloaded folder"
@@ -53,10 +53,12 @@ def __upload_tracks__():
             success = gmupload.upload(trackdir)
             if success:
                 os.rmdir(trackdir)
-        except:
+        except IOError:
             print 'Failed to upload {}'.format(trackdir)
 
 def run():
     "Main run method"
-    __download_tracks__()
+    while __download_tracks__():
+        pass
+
     __upload_tracks__()

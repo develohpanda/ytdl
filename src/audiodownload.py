@@ -8,8 +8,12 @@ import youtube_dl
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"
 
-    def __init__(self):
+    def __init__(self, downloads_path):
         self.folders_with_lock_files = []
+        if not oshelper.isdir(downloads_path):
+            raise IOError('Folder {} does not exist'.format(downloads_path))
+
+        self.downloads_path = downloads_path
 
     def __my_hook__(self, hook):
         "Fires when youtube_dl wants to send a notification of an event"

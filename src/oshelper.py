@@ -53,4 +53,7 @@ def get_album_art_file(files):
 def get_track_info_file(files):
     "Gets the track info file from this folder (*.info.json)"
     return next((f for f in files if f.endswith('.info.json')), DEFAULT_FILE_NAME)
-    
+
+def isdir(path):
+    "Checks if path is a directory"
+    return os.path.isdir(path)
