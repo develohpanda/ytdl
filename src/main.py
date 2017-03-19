@@ -7,12 +7,14 @@ from audiodownload import AudioDownload
 from gmupload import GoolgeMusicUploader
 import boto3
 
-def __get_messages__():
+def __get_messages__(queue_url):
     "Checks in queue and downloads tracks to a local folder"
+
+    print 'Getting messages'
 
     try:
         sqs = boto3.resource('sqs')
-        queue = sqs.Queue('https://sqs.us-east-1.amazonaws.com/342179033824/to-download')
+        queue = sqs.Queue(queue_url)
         return queue.receive_messages(MaxNumberOfMessages=10, VisibilityTimeout=300)
 
     except boto3.exceptions.Boto3Error as awserror:
@@ -20,24 +22,23 @@ def __get_messages__():
         print awserror.message
         return []
 
-def __download_tracks__(downloads_path):
+def __download_tracks__(queue_url, downloads_path):
     "Downloads any tracks to the download folder"
 
-    messages = __get_messages__()
+    messages = __get_messages__(queue_url)
 
     if len(messages) == 0:
         print 'No new tracks in queue for download'
         return False
 
-    print 'Downloading {} tracks'.format(len(messages))
-
     for message in messages:
         payload = json.loads(message.body)
         url = payload['link']
-
+        print 'Downloading from {}'.format(payload['link'])
         download_result = AudioDownload(downloads_path).download(url)
 
         if download_result.success:
+            print 'Downloaded {}'.format(payload['link'])
             message.delete()
         else:
             #TODO Log to raygun
@@ -63,7 +64,7 @@ def __upload_tracks__(downloads_path, uploaded_path, credential_file):
             print "{} - {}".format(dir_not_found.message, dir_not_found.path)
         else:
             if upload_result.success:
-                oshelper.copy_dir_tree(upload_result.track_dir, uploaded_path)
+                #oshelper.copy_dir_tree(upload_result.track_dir, uploaded_path)
                 print 'Uploaded [{}] to gmusic and copied to {}'.format(
                     upload_result.track_name,
                     uploaded_path)
@@ -81,11 +82,12 @@ def run():
     downloads_folder = 'downloads'
     uploaded_folder = 'uploaded'
     credential_file = '..\\gmusicapi-musicmanager.cred'
+    queue_url = 'https://sqs.us-east-1.amazonaws.com/342179033824/to-download'
 
     downloads_path = oshelper.join_paths(home_path, downloads_folder)
     uploaded_path = oshelper.join_paths(home_path, uploaded_folder)
 
-    while __download_tracks__(downloads_path):
+    while __download_tracks__(queue_url, downloads_path):
         pass
 
     __upload_tracks__(downloads_path, uploaded_path, credential_file)

@@ -50,21 +50,22 @@ class GoolgeMusicUploader(object):
         "Does the upload."
 
         files = oshelper.absolute_files(self.track_dir)
+        
+        info = TrackInfo(oshelper.get_track_info_file(files))
+        info.load()
 
-        info = TrackInfo(oshelper.get_track_info_file(files)).load()
-
-        print 'Uploading {}'.format(info.track_name)
+        print 'Uploading {}'.format(info.full_title)
 
         locked = oshelper.lock_file_exists(self.track_dir)
         if locked:
-            return UploadResult(False, self.track_dir, info.track_name, 'Lock file exists')
+            return UploadResult(False, self.track_dir, info.full_title, 'Lock file exists')
 
         track_file = oshelper.get_track_file(files)
         if track_file == oshelper.DEFAULT_FILE_NAME:
-            return UploadResult(False, self.track_dir, info.track_name, 'MP3 Track file not found')
+            return UploadResult(False, self.track_dir, info.full_title, 'MP3 Track file not found')
 
         audio_metadata = AudioMetadata(track_file)
         audio_metadata.apply_album_art(oshelper.get_album_art_file(files))
         audio_metadata.apply_track_info(info)
 
-        return self.__upload_file__(track_file, info.track_name)
+        return self.__upload_file__(track_file, info.full_title)
