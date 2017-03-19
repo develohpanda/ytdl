@@ -31,9 +31,13 @@ def upload(trackdir):
 
     files = oshelper.absolute_files(trackdir)
 
+    locked = oshelper.lock_file_exists(files)
+    if locked:
+        return False
+
     track_file = oshelper.get_track_file(files)
     if track_file == oshelper.DEFAULT_FILE_NAME:
-        return
+        return False
 
     album_art_file = oshelper.get_album_art_file(files)
     if album_art_file != oshelper.DEFAULT_FILE_NAME:

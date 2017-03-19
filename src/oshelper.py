@@ -2,6 +2,9 @@
 
 import os
 
+DEFAULT_FILE_NAME = ''
+LOCK_FILE_NAME = 'LOCK'
+
 def absolute_files(path):
     "Returns the files at this directory as absolute filepaths"
     if os.path.isdir(path):
@@ -16,7 +19,9 @@ def absolute_dirs(path):
         return [f for f in dirs if os.path.isdir(f)]
     return []
 
-DEFAULT_FILE_NAME = ''
+def lock_file_exists(files):
+    "Determines whether or not a LOCK file exists to prevent any changes"
+    return len(f for f in files if f.endswith(LOCK_FILE_NAME)) > 0
 
 def get_track_file(files):
     "Gets the mp3 file from this folder (*.mp3)"

@@ -9,11 +9,7 @@ import boto3
 
 def __get_messages__():
     "Checks in queue and downloads tracks to a local folder"
-    """Steps:
-        1. Download messages from queue
-        2. Download all tracks
-        3. Upload to s3
-    """
+
     sqs = boto3.resource('sqs')
     queue = sqs.Queue('https://sqs.us-east-1.amazonaws.com/342179033824/to-download')
     return queue.receive_messages(
@@ -21,8 +17,10 @@ def __get_messages__():
         VisibilityTimeout=43200
     )
 
-def __download_tracks__(messages):
+def __download_tracks__():
     "Downloads any tracks to the download folder"
+
+    messages = __get_messages__()
 
     if len(messages) == 0:
         print 'No new tracks in queue for download'
@@ -60,6 +58,5 @@ def __upload_tracks__():
 
 def run():
     "Main run method"
-    messages = __get_messages__()
-    __download_tracks__(messages)
+    __download_tracks__()
     __upload_tracks__()
