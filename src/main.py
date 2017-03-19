@@ -45,38 +45,49 @@ def __download_tracks__(downloads_path):
 
     return True
 
-def __upload_tracks__(downloads_path):
+def __upload_tracks__(downloads_path, uploaded_path, credential_file):
     "Uploads any tracks in the downloaded folder"
 
     track_dirs = oshelper.absolute_dirs(downloads_path)
     if len(track_dirs) == 0:
         return
 
+    print 'Uploading {} tracks'.format(len(track_dirs))
+
     for track_dir in track_dirs:
         try:
-            upload_result = GoolgeMusicUploader(track_dir).upload()
+            upload_result = GoolgeMusicUploader(credential_file, track_dir).upload()
         except AuthError as auth_error:
             print auth_error.message
         except DirectoryNotFoundError as dir_not_found:
             print "{} - {}".format(dir_not_found.message, dir_not_found.path)
         else:
             if upload_result.success:
-                pass
-                #oshelper.remove(upload_result.track_dir)
+                oshelper.copy_dir_tree(upload_result.track_dir, uploaded_path)
+                print 'Uploaded [{}] to gmusic and copied to {}'.format(
+                    upload_result.track_name,
+                    uploaded_path)
             else:
                 #TODO Log to raygun
-                print '{} - {}'.format(upload_result.message, upload_result.track_dir)
+                print '[{}] - {} - {}'.format(
+                    upload_result.track_name,
+                    upload_result.message,
+                    upload_result.track_dir)
 
 def run():
     "Main run method"
     #TODO Add config file and load data from config file
-    home_path = 'c:\\users\\opend'
-    downloads_path = 'ytdl\\downloads'
-    full_path = oshelper.join_paths(home_path, downloads_path)
+    home_path = 'c:\\users\\opend\\ytdl'
+    downloads_folder = 'downloads'
+    uploaded_folder = 'uploaded'
+    credential_file = '..\\gmusicapi-musicmanager.cred'
 
-    while __download_tracks__(full_path):
+    downloads_path = oshelper.join_paths(home_path, downloads_folder)
+    uploaded_path = oshelper.join_paths(home_path, uploaded_folder)
+
+    while __download_tracks__(downloads_path):
         pass
 
-    __upload_tracks__(full_path)
+    __upload_tracks__(downloads_path, uploaded_path, credential_file)
 
 run()

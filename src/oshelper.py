@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import errno
 
 DEFAULT_FILE_NAME = ''
 LOCK_FILE_NAME = 'LOCK'
@@ -65,3 +66,14 @@ def remove(path):
 def join_paths(first, second):
     "Joins two paths into one"
     return os.path.join(first, second)
+
+def copy_dir_tree(source, destination):
+    "Copy the directory and contents from source to destination"
+    try:
+        shutil.copytree(source, destination)
+    except OSError as oserror:
+        # If the error was caused because the source wasn't a directory
+        if oserror.errno == errno.ENOTDIR:
+            shutil.copy(source, destination)
+        else:
+            raise
