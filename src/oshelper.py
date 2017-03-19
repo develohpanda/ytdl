@@ -19,9 +19,28 @@ def absolute_dirs(path):
         return [f for f in dirs if os.path.isdir(f)]
     return []
 
-def lock_file_exists(files):
+def try_create_lock_file(path):
+    "Creates a lock file at the specified path"
+    lock_file_path = os.path.join(path, LOCK_FILE_NAME)
+    if os.path.isdir(path) and not os.path.exists(lock_file_path):
+        open(lock_file_path, 'w+')
+        return True
+    return False
+
+def lock_file_exists(path):
     "Determines whether or not a LOCK file exists to prevent any changes"
-    return len(f for f in files if f.endswith(LOCK_FILE_NAME)) > 0
+    if os.path.isdir(path):
+        files = [f for f in os.listdir(path)]
+        return LOCK_FILE_NAME in files
+    return False
+
+def try_delete_lock_file(path):
+    "Deletes the lock file at the specified path"
+    lock_file_path = os.path.join(path, LOCK_FILE_NAME)
+    if os.path.exists(lock_file_path):
+        os.remove(lock_file_path)
+        return True
+    return False
 
 def get_track_file(files):
     "Gets the mp3 file from this folder (*.mp3)"

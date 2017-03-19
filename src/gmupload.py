@@ -31,7 +31,7 @@ def upload(trackdir):
 
     files = oshelper.absolute_files(trackdir)
 
-    locked = oshelper.lock_file_exists(files)
+    locked = oshelper.lock_file_exists(trackdir)
     if locked:
         return False
 
