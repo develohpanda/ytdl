@@ -43,10 +43,9 @@ class AudioMetadata(object):
         info = json.loads(open(track_info_file).read())
 
         audiofile.tag.artist = info['uploader']
-        audiofile.tag.subtitle = info['id']
-        audiofile.tag.album = info['uploader']
-        audiofile.tag.albumartist = info['uploader']
+        audiofile.tag.album_artist = info['uploader']
+        audiofile.tag.album = info['fulltitle']
         audiofile.tag.title = info['fulltitle']
-        audiofile.tag.year = info['upload_date'][:4]
+        audiofile.tag.year = int(info['upload_date'][:4])
         audiofile.tag.comments.set(info['webpage_url'])
         audiofile.tag.save()
