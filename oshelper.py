@@ -19,9 +19,14 @@ def absolute_dirs(path):
 DEFAULT_FILE_NAME = ''
 
 def get_track_file(files):
-    "Gets the mp3 file from this folder"
+    "Gets the mp3 file from this folder (*.mp3)"
     return next((f for f in files if f.endswith('.mp3')), DEFAULT_FILE_NAME)
 
 def get_album_art_file(files):
-    "Gets the album art file from this folder"
+    "Gets the album art file from this folder (*.jpg)"
     return next((f for f in files if f.endswith('.jpg')), DEFAULT_FILE_NAME)
+
+def get_track_info_file(files):
+    "Gets the track info file from this folder (*.info.json)"
+    return next((f for f in files if f.endswith('.info.json')), DEFAULT_FILE_NAME)
+    

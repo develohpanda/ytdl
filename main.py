@@ -32,7 +32,7 @@ def __download_tracks__(messages):
     for message in messages:
         payload = json.loads(message.body)
         try:
-            audiodownload.ytdownload([payload['link']])
+            audiodownload.download([payload['link']])
         except:
             print 'Failed to download [{},{}]'.format(payload['title'], payload['link'])
         else:
