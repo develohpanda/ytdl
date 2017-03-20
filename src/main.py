@@ -64,7 +64,8 @@ def __upload_tracks__(downloads_path, uploaded_path, credential_file):
             print "{} - {}".format(dir_not_found.message, dir_not_found.path)
         else:
             if upload_result.success:
-                #oshelper.copy_dir_tree(upload_result.track_dir, uploaded_path)
+                oshelper.copy(upload_result.track_file, uploaded_path)
+                oshelper.remove(upload_result.track_dir)
                 print 'Uploaded [{}] to gmusic and copied to {}'.format(
                     upload_result.track_name,
                     uploaded_path)
