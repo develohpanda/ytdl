@@ -93,4 +93,6 @@ def run():
 
     __upload_tracks__(downloads_path, uploaded_path, credential_file)
 
+    print 'Done'
+
 run()
