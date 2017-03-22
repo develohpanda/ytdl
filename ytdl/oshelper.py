@@ -2,6 +2,7 @@
 
 import os
 import logging
+import errno
 from shutil import rmtree, copy2
 
 DEFAULT_FILE_NAME = ''
@@ -26,7 +27,7 @@ def try_create_lock_file(path):
     lock_file_path = os.path.join(path, LOCK_FILE_NAME)
     if os.path.isdir(path) and not os.path.exists(lock_file_path):
         open(lock_file_path, 'w+')
-        logging.info('Created lockfile - %s', lock_file_path)
+        logging.getLogger(__name__).info('Created lockfile - %s', lock_file_path)
 
 def lock_file_exists(path):
     "Determines whether or not a LOCK file exists to prevent any changes"
@@ -40,7 +41,7 @@ def try_delete_lock_file(path):
     lock_file_path = os.path.join(path, LOCK_FILE_NAME)
     if os.path.exists(lock_file_path):
         remove(lock_file_path)
-        logging.info('Deleted lockfile - %s', lock_file_path)
+        logging.getLogger(__name__).info('Deleted lockfile - %s', lock_file_path)
 
 def get_track_file(files):
     "Gets the mp3 file from this folder (*.mp3)"
@@ -74,3 +75,28 @@ def copy(source_file, target_dir):
     if not os.path.isdir(target_dir):
         os.mkdir(target_dir)
     copy2(source_file, target_dir)
+
+def filename(path):
+    "Gets the file name"
+    return os.path.basename(path)
+
+def filename_no_extension(path):
+    "Gets the file name without the extension"
+    base = os.path.basename(path)
+    return os.path.splitext(base)[0]
+
+def dirname(path):
+    "Gets the directory name"
+    return os.path.dirname(path)
+
+def mkdir(path):
+    "Makes directory if it doesn't exist"
+    if os.path.exists(path):
+        return
+
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise

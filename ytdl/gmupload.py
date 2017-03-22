@@ -14,6 +14,7 @@ class GoolgeMusicUploader(object):
         self.credential_file = credential_file
         self.mac_address = mac_address
         self.manager = Musicmanager(False)
+        self.logger = logging.getLogger(__name__)
 
     def login(self):
         "Logs in"
@@ -26,9 +27,9 @@ class GoolgeMusicUploader(object):
         if self.manager.is_authenticated:
             success = self.manager.logout()
             if success:
-                logging.info('Logged out of Google Play Music')
+                self.logger.info('Logged out of Google Play Music')
             else:
-                logging.warning('Failed to log out of Google Play Music')
+                self.logger.warning('Failed to log out of Google Play Music')
 
     def upload(self, track_dir):
         "Does the upload."
@@ -69,7 +70,7 @@ class GoolgeMusicUploader(object):
         return result
 
     def __upload_file__(self, track_file):
-        logging.info('Uploading %s', track_file)
+        self.logger.info('Uploading %s', track_file)
         upload_result = self.manager.upload(track_file)
 
         if upload_result[0] != {}:

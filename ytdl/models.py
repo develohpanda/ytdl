@@ -12,12 +12,13 @@ class TrackInfo(object):
         self.upload_year = 0
         self.url = 'Default'
         self.is_default = True
+        self.logger = logging.getLogger(__name__)
 
     def load(self, track_info_file):
         "Loads from a file into the object"
 
         if track_info_file == DEFAULT_FILE_NAME:
-            logging.warning('No track info file present')
+            self.logger.warning('No track info file present')
             return
 
         info = json.loads(open(track_info_file).read())
@@ -40,7 +41,6 @@ class Payload(object):
         values = json.loads(message)
         self.title = values['title']
         self.url = values['link']
-
 
 class UploadResult(object):
     "Represents the result of uploading tracks"

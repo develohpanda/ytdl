@@ -1,8 +1,9 @@
-"Main"
+"Ytdl"
+
+from __future__ import unicode_literals
 
 import datetime
 import logging
-
 import oshelper
 from audiodownload import AudioDownload
 from awsqueue import Awsqueue
@@ -14,6 +15,7 @@ from models import Payload
 class Ytdl(object):
     "Youtube downloader"
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.downloads_path = 'c:\\users\\opend\\ytdl\\downloads'
         self.uploaded_path = 'c:\\users\\opend\\ytdl\\uploaded'
 
@@ -27,10 +29,10 @@ class Ytdl(object):
         messages = Awsqueue(self.queue_url).get_messages()
 
         if len(messages) == 0:
-            logging.info('No messages loaded')
+            self.logger.info('No messages loaded')
             return False
 
-        logging.info('Loaded %d messages', len(messages))
+        self.logger.info('Loaded %d messages', len(messages))
         for message in messages:
             payload = Payload()
             payload.load(message.body)
@@ -39,9 +41,9 @@ class Ytdl(object):
 
             if download_result.success:
                 message.delete()
-                logging.info('Message deleted from queue (%s)', download_result.message)
+                self.logger.info('Message deleted from queue (%s)', download_result.message)
             else:
-                logging.info(download_result.message)
+                self.logger.info(download_result.message)
 
         return True
 
@@ -50,27 +52,27 @@ class Ytdl(object):
 
         track_dirs = oshelper.absolute_dirs(self.downloads_path)
         if len(track_dirs) == 0:
-            logging.info('No tracks to upload')
+            self.logger.info('No tracks to upload')
             return
 
         gmu = GoolgeMusicUploader(self.credential_file, self.mac_address)
 
         try:
-            logging.info('Authenticating with Google Play Music')
+            self.logger.info('Authenticating with Google Play Music')
             gmu.login()
-            logging.info('Authenticated')
+            self.logger.info('Authenticated')
         except AuthError as autherror:
-            logging.error(autherror)
+            self.logger.error(autherror)
             return
 
-        logging.info('%d tracks to upload', len(track_dirs))
+        self.logger.info('%d tracks to upload', len(track_dirs))
         for track_dir in track_dirs:
             try:
                 upload_result = gmu.upload(track_dir)
             except AuthError as auth_error:
-                logging.error(auth_error)
+                self.logger.error(auth_error)
             except DirectoryNotFoundError as dir_not_found:
-                logging.error(dir_not_found)
+                self.logger.error(dir_not_found)
             else:
                 if upload_result.success:
                     self.__successful_upload_tasks__(
@@ -81,30 +83,23 @@ class Ytdl(object):
                         upload_result.track_name,
                         upload_result.message,
                         upload_result.track_dir)
-                    logging.warning(message)
+                    self.logger.warning(message)
         gmu.logout()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
         oshelper.copy(track_file, self.uploaded_path)
         oshelper.remove(track_dir)
-        logging.info(
+        self.logger.info(
             'Track directory removed, track file copied to %s',
             self.uploaded_path)
 
     def run(self):
         "Main run method"
 
-        logs_path = oshelper.join_paths('c:\\users\\opend\\ytdl\\logs', str(datetime.date.today()))
-        logging.basicConfig(
-            filename=logs_path,
-            level=logging.DEBUG,
-            format='%(asctime)s %(message)s',
-            datefmt='%m/%d/%Y %I:%M:%S %p')
-
-        logging.info('Starting up')
+        self.logger.info('Starting up')
 
         while self.__download_tracks__():
             pass
 
         self.__upload_tracks__()
-        logging.info('Shutting down')
+        self.logger.info('Shutting down')
