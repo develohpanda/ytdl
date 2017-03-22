@@ -70,6 +70,5 @@ class AudioMetadata(object):
         audiofile.tag.album_artist = info.uploader
         audiofile.tag.album = info.full_title
         audiofile.tag.title = info.full_title
-        audiofile.tag.date = info.upload_year
         audiofile.tag.comments.set(info.url)
         audiofile.tag.save()

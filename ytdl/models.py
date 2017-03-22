@@ -9,7 +9,6 @@ class TrackInfo(object):
     def __init__(self):
         self.uploader = 'Default'
         self.full_title = 'Default'
-        self.upload_year = 0
         self.url = 'Default'
         self.is_default = True
         self.logger = logging.getLogger(__name__)
@@ -25,7 +24,6 @@ class TrackInfo(object):
 
         self.uploader = info['uploader']
         self.full_title = info['fulltitle']
-        self.upload_year = int(info['upload_date'][:4])
         self.url = info['webpage_url']
         self.is_default = False
 
