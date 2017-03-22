@@ -1,10 +1,11 @@
 "OS helper"
 
 import os
+import logging
 from shutil import rmtree, copy2
 
 DEFAULT_FILE_NAME = ''
-LOCK_FILE_NAME = 'LOCK'
+LOCK_FILE_NAME = 'CANT_TOUCH_THIS'
 
 def absolute_files(path):
     "Returns the files at this directory as absolute filepaths"
@@ -25,6 +26,7 @@ def try_create_lock_file(path):
     lock_file_path = os.path.join(path, LOCK_FILE_NAME)
     if os.path.isdir(path) and not os.path.exists(lock_file_path):
         open(lock_file_path, 'w+')
+        logging.info('Created lockfile - %s', lock_file_path)
 
 def lock_file_exists(path):
     "Determines whether or not a LOCK file exists to prevent any changes"
@@ -38,6 +40,7 @@ def try_delete_lock_file(path):
     lock_file_path = os.path.join(path, LOCK_FILE_NAME)
     if os.path.exists(lock_file_path):
         remove(lock_file_path)
+        logging.info('Deleted lockfile - %s', lock_file_path)
 
 def get_track_file(files):
     "Gets the mp3 file from this folder (*.mp3)"

@@ -1,83 +1,83 @@
 "This is used for uploading downloaded track to google play music"
 
+import logging
 import oshelper
 from customerrors import AuthError, DirectoryNotFoundError
-from audiometadata import AudioMetadata, TrackInfo
+from models import TrackInfo, UploadResult
+from audiometadata import AudioMetadata
 from gmusicapi import Musicmanager
-
-class UploadResult(object):
-    "Represents the result of uploading tracks"
-
-    def __init__(self, track_dir, track_file, track_name):
-        self.success = False
-        self.track_dir = track_dir
-        self.track_file = track_file
-        self.track_name = track_name
-        self.message = ''
-
-    def set_success(self, message):
-        "Sets success properties on the result object"
-        self.message = message
-        self.success = True
-
-    def set_failure(self, message):
-        "Sets failure properties on the result object"
-        self.message = message
-        self.success = False
 
 class GoolgeMusicUploader(object):
     "Google music upload class"
 
-    def __init__(self, credential_file, track_dir):
-        if not oshelper.isdir(track_dir):
-            raise DirectoryNotFoundError(track_dir)
-
-        self.track_dir = track_dir
+    def __init__(self, credential_file, mac_address):
         self.credential_file = credential_file
+        self.mac_address = mac_address
+        self.manager = Musicmanager(False)
 
-    def __upload_file__(self, track_file, result):
-        manager = Musicmanager(False)
-        if not manager.login(self.credential_file, '09:32:24:12:CD:AA', 'ytdl-bot'):
+    def login(self):
+        "Logs in"
+        if not self.manager.login(self.credential_file, self.mac_address, 'ytdl-bot'):
             raise AuthError(
                 'Could not authenticate music manager using {}'.format(self.credential_file))
 
-        upload_result = manager.upload(track_file)
+    def logout(self):
+        "Logs out"
+        if self.manager.is_authenticated:
+            success = self.manager.logout()
+            if success:
+                logging.info('Logged out of Google Play Music')
+            else:
+                logging.warning('Failed to log out of Google Play Music')
 
-        if upload_result[0] != {}:
-            result.set_success(upload_result[0])
-
-        elif upload_result[1] != {}:
-            result.set_success(upload_result[1])
-
-        elif upload_result[2] != {}:
-            reason = list(upload_result[2].viewitems())[0]
-            result.set_failure('Couldn\'t upload {} because {}'.format(reason[0], reason[1]))
-
-    def upload(self):
+    def upload(self, track_dir):
         "Does the upload."
 
-        files = oshelper.absolute_files(self.track_dir)
+        if not self.manager.is_authenticated:
+            raise AuthError("Music Manager not authenticated. Call 'login' first.")
 
-        info = TrackInfo(oshelper.get_track_info_file(files))
-        info.load()
+        if not oshelper.isdir(track_dir):
+            raise DirectoryNotFoundError(track_dir)
 
-        print 'Uploading {}'.format(info.full_title)
+        files = oshelper.absolute_files(track_dir)
+
+        info = TrackInfo()
+        info.load(oshelper.get_track_info_file(files))
 
         track_file = oshelper.get_track_file(files)
-        result = UploadResult(self.track_dir, track_file, info.full_title)
+
+        result = UploadResult(track_dir, track_file, info.full_title)
 
         if track_file == oshelper.DEFAULT_FILE_NAME:
             result.set_failure('MP3 Track file not found')
             return result
 
-        locked = oshelper.lock_file_exists(self.track_dir)
+        locked = oshelper.lock_file_exists(track_dir)
         if locked:
             result.set_failure('Lock file exists')
             return result
 
-        audio_metadata = AudioMetadata(track_file)
-        audio_metadata.apply_track_info(info)
-        audio_metadata.apply_album_art(oshelper.get_album_art_file(files))
+        metadata = AudioMetadata(track_file)
+        metadata.apply_album_art(oshelper.get_album_art_file(files))
+        metadata.apply_track_info(info)
 
-        self.__upload_file__(track_file, result)
+        success, message = self.__upload_file__(track_file)
+        if success:
+            result.set_success(message)
+        else:
+            result.set_failure(message)
         return result
+
+    def __upload_file__(self, track_file):
+        logging.info('Uploading %s', track_file)
+        upload_result = self.manager.upload(track_file)
+
+        if upload_result[0] != {}:
+            return True, upload_result[0]
+
+        elif upload_result[1] != {}:
+            return True, upload_result[2]
+
+        elif upload_result[2] != {}:
+            reason = list(upload_result[2].viewitems())[0]
+            return False, 'Couldn\'t upload {} because {}'.format(reason[0], reason[1])

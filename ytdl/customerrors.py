@@ -27,3 +27,15 @@ class DirectoryNotFoundError(Error):
     def __init__(self, path):
         super(DirectoryNotFoundError, self).__init__('Directory not found')
         self.path = path
+
+class FileNotFoundError(Error):
+    """Exception raised when File does not exist
+
+    Attributes:
+        message -- explanation of the error,
+        path -- the path
+    """
+
+    def __init__(self, path):
+        super(FileNotFoundError, self).__init__('File not found')
+        self.path = path

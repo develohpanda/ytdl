@@ -1,16 +1,11 @@
 "This is used for downloading a youtube video as mp3"
 
-from __future__ import unicode_literals
 import logging
+
+from youtube_dl import YoutubeDL, DownloadError
+
 import oshelper
-import youtube_dl
-
-class DownloadResult(object):
-    "Represents the result of downloading tracks"
-
-    def __init__(self, success, message):
-        self.success = success
-        self.message = message
+from models import DownloadResult
 
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"
@@ -26,9 +21,13 @@ class AudioDownload(object):
 
         elif hook['status'] == 'finished':
             self.downloaded_to_folder = oshelper.os.path.dirname(hook['filename'])
+            logging.info('Successfully downloaded, now converting...')
 
     def download(self, url):
         "Downloads a url as mp3"
+
+        logging.info('Downloading %s', url)
+
         self.downloaded_to_folder = ''
         output_template = oshelper.join_paths(self.downloads_path, '%(id)s\\%(title)s.%(ext)s')
         ydl_opts = {
@@ -42,15 +41,17 @@ class AudioDownload(object):
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '320',
+                'preferredquality': '192',
             }]
         }
 
         try:
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            with YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
+            logging.info('Conversion complete')
             return DownloadResult(True, self.downloaded_to_folder)
-        except  youtube_dl.DownloadError as dlerror:
-            return DownloadResult(False, dlerror.message)
+        except DownloadError as dlerror:
+            logging.error(dlerror)
+            return DownloadResult(False, 'Download failed')
         finally:
             oshelper.try_delete_lock_file(self.downloaded_to_folder)
