@@ -1,20 +1,23 @@
 "Main"
 
-import os
 import datetime
 import logging
+import os
+
+import oshelper
 from ytdl import Ytdl
+
 
 def main():
     "Main"
     logging.getLogger('').handlers = []
+    logs_file_path = 'c:\\users\\opend\\ytdl\\logs'
+    oshelper.mkdir(logs_file_path)
+    file_name = os.path.join(logs_file_path, str(datetime.date.today()) + ".log")
 
-    #oshelper.mkdir(oshelper.dirname(logs_file_path))
     logging.basicConfig(
-        filename=os.path.join(
-            'c:\\users\\opend\\ytdl\\logs',
-            str(datetime.date.today()) + ".log"),
-        level=logging.DEBUG,
+        filename=file_name,
+        level=logging.INFO,
         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
 
