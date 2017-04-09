@@ -11,6 +11,7 @@ setup(
         'gmusicapi==10.1.2.rc1',
         'boto3',
         'mutagen',
+        'configparser',
         'image'
     ],
     dependency_links=[
