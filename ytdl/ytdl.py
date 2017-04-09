@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 
-import datetime
 import logging
 import oshelper
 from audiodownload import AudioDownload
@@ -14,19 +13,14 @@ from models import Payload
 
 class Ytdl(object):
     "Youtube downloader"
-    def __init__(self):
+    def __init__(self, ytdl_config):
         self.logger = logging.getLogger(__name__)
-        self.downloads_path = 'c:\\users\\opend\\ytdl\\downloads'
-        self.uploaded_path = 'c:\\users\\opend\\ytdl\\uploaded'
-
-        self.credential_file = '..\\gmusicapi-musicmanager.cred'
-        self.mac_address = '09:32:24:12:CD:AA'
-        self.queue_url = 'https://sqs.us-east-1.amazonaws.com/342179033824/to-download'
+        self.ytdl_config = ytdl_config
 
     def __download_tracks__(self):
         "Downloads any tracks to the download folder"
 
-        messages = Awsqueue(self.queue_url).get_messages()
+        messages = Awsqueue(self.ytdl_config.queue_url).get_messages()
 
         if len(messages) == 0:
             self.logger.info('No messages loaded')
@@ -37,7 +31,7 @@ class Ytdl(object):
             payload = Payload()
             payload.load(message.body)
 
-            download_result = AudioDownload(self.downloads_path).download(payload.url)
+            download_result = AudioDownload(self.ytdl_config).download(payload.url)
 
             if download_result.success:
                 message.delete()
@@ -50,12 +44,12 @@ class Ytdl(object):
     def __upload_tracks__(self):
         "Uploads any tracks in the downloaded folder"
 
-        track_dirs = oshelper.absolute_dirs(self.downloads_path)
+        track_dirs = oshelper.absolute_dirs(self.ytdl_config.download_folder)
         if len(track_dirs) == 0:
             self.logger.info('No tracks to upload')
             return
 
-        gmu = GoolgeMusicUploader(self.credential_file, self.mac_address)
+        gmu = GoolgeMusicUploader(self.ytdl_config)
 
         try:
             self.logger.info('Authenticating with Google Play Music')
@@ -87,11 +81,12 @@ class Ytdl(object):
         gmu.logout()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
-        oshelper.copy(track_file, self.uploaded_path)
+        if oshelper.isdir(self.ytdl_config.uploaded_path):
+            oshelper.copy(track_file, self.ytdl_config.uploaded_path)
+            self.logger.info('Track file copied to %s', self.ytdl_config.uploaded_path)
+
         oshelper.remove(track_dir)
-        self.logger.info(
-            'Track directory removed, track file copied to %s',
-            self.uploaded_path)
+        self.logger.info('Track directory removed')
 
     def run(self):
         "Main run method"

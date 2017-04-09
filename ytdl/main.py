@@ -4,17 +4,19 @@ import datetime
 import time
 import logging
 import os
+import sys
 
 import oshelper
 from ytdl import Ytdl
+from ytdlconfiguration import Ytdlconfiguration
 
+def configure_loggers(config):
+    "Configure logger"
 
-def main():
-    "Main"
     logging.getLogger('').handlers = []
-    logs_file_path = 'c:\\users\\opend\\ytdl\\logs'
-    oshelper.mkdir(logs_file_path)
-    logs_file_name = os.path.join(logs_file_path, str(datetime.date.today()) + ".log")
+
+    oshelper.mkdir(config.log_folder)
+    logs_file_name = os.path.join(config.log_folder, str(datetime.date.today()) + ".log")
 
     logging.basicConfig(
         filename=logs_file_name,
@@ -32,15 +34,45 @@ def main():
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
 
-    Ytdl().run()
+    sys.excepthook = handle_exception
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    "Handle uncaught exception"
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logger = logging.getLogger(__name__)
+    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+def remove_old_log_files(config):
+    "Remove old log files"
 
     current_time = time.time()
 
-    for file_name in os.listdir(logs_file_path):
+    for file_name in os.listdir(config.log_folder):
         creation_time = os.path.getctime(file_name)
         if (current_time - creation_time) // (24 * 3600) >= 7:
             os.unlink(file_name)
             logging.info('Removed %s', file_name)
+
+def main():
+    "Main"
+
+    config = Ytdlconfiguration()
+
+    configure_loggers(config)
+
+    config.load()
+
+    if not config.is_valid():
+        logger = logging.getLogger(__name__)
+        logger.error("Invalid config at %s", config.config_file_path)
+        return
+
+    Ytdl(config).run()
+
+    remove_old_log_files(config)
 
 if __name__ == '__main__':
     main()

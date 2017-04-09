@@ -39,3 +39,10 @@ class FileNotFoundError(Error):
     def __init__(self, path):
         super(FileNotFoundError, self).__init__('File not found')
         self.path = path
+
+class InvalidConfig(Error):
+    "Exception raised when config is invalid"
+
+    def __init__(self, path):
+        super(InvalidConfig, self).__init__('Invalid config')
+        self.path = path

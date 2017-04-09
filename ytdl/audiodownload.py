@@ -1,17 +1,20 @@
 "This is used for downloading a youtube video as mp3"
 
+from __future__ import unicode_literals
+
 import logging
 
-from youtube_dl import YoutubeDL, DownloadError
+from youtube_dl import DownloadError, YoutubeDL
 
 import oshelper
 from models import DownloadResult
 
+
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"
 
-    def __init__(self, downloads_path):
-        self.downloads_path = downloads_path
+    def __init__(self, config):
+        self.download_folder = config.download_folder
         self.downloaded_to_folder = ''
         self.logger = logging.getLogger(__name__)
 
@@ -30,7 +33,7 @@ class AudioDownload(object):
         self.logger.info('Downloading %s', url)
 
         self.downloaded_to_folder = ''
-        output_template = oshelper.join_paths(self.downloads_path, '%(id)s\\%(title)s.%(ext)s')
+        output_template = oshelper.join_paths(self.download_folder, '%(id)s\\%(title)s.%(ext)s')
         ydl_opts = {
             'format': 'bestaudio',
             'noplaylist': True,

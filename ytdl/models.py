@@ -1,8 +1,9 @@
 "Models used in the application"
 
-import logging
 import json
-from oshelper import DEFAULT_FILE_NAME
+import logging
+
+from oshelper import  DEFAULT_FILE_NAME
 
 class TrackInfo(object):
     "Information about a particular track"
@@ -30,14 +31,12 @@ class TrackInfo(object):
 class Payload(object):
     "The AWS Queue object payload"
     def __init__(self):
-        self.title = ''
         self.url = ''
 
     def load(self, message):
         "Loads from the message content into the object"
 
         values = json.loads(message)
-        self.title = values['title']
         self.url = values['link']
 
 class UploadResult(object):

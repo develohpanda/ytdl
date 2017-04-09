@@ -5,20 +5,27 @@ import oshelper
 from customerrors import AuthError, DirectoryNotFoundError
 from models import TrackInfo, UploadResult
 from audiometadata import AudioMetadata
-from gmusicapi import Musicmanager
+from gmusicapi import Musicmanager, clients
 
 class GoolgeMusicUploader(object):
     "Google music upload class"
 
-    def __init__(self, credential_file, mac_address):
-        self.credential_file = credential_file
-        self.mac_address = mac_address
+    def __init__(self, config):
+        self.credential_file = ''
+
+        if len(config.googleplay_credential_file) > 0:
+            self.credential_file = config.googleplay_credential_file
+        else:
+            self.credential_file = clients.OAUTH_FILEPATH
+
+        self.mac_address = config.mac_address_for_gplay
         self.manager = Musicmanager(False)
         self.logger = logging.getLogger(__name__)
 
     def login(self):
         "Logs in"
-        if not self.manager.login(self.credential_file, self.mac_address, 'ytdl-bot'):
+
+        if not self.manager.login(self.credential_file, self.mac_address):
             raise AuthError(
                 'Could not authenticate music manager using {}'.format(self.credential_file))
 
