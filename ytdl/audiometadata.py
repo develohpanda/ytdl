@@ -1,7 +1,8 @@
 "Apply audio metadata"
 
 import logging
-import eyed3
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC, error
 from PIL import Image
 
 import oshelper
@@ -16,12 +17,14 @@ class AudioMetadata(object):
 
     def __load__(self):
         try:
-            audiofile = eyed3.load(self.track_file)
+            audiofile = MP3(self.track_file, ID3=ID3)
         except IOError as ioerror:
             raise FileNotFoundError(ioerror.filename)
         else:
-            if audiofile.tag is None:
-                audiofile.initTag()
+            try:
+                audiofile.add_tags()
+            except error:
+                pass
             return audiofile
 
     def apply_album_art(self, album_art_file):
@@ -37,8 +40,17 @@ class AudioMetadata(object):
         self.logger.info('Embedding cover art %s', resized_album_art_file)
 
         audiofile = self.__load__()
-        audiofile.tag.images.set(3, open(resized_album_art_file, 'rb').read(), 'image/jpeg')
-        audiofile.tag.save()
+        data = open(resized_album_art_file, 'rb').read()
+        audiofile.tags.add(
+            APIC(
+                encoding=3, # 3 is for utf-8
+                mime='image/jpeg', # image/jpeg or image/png
+                type=3, # 3 is for the cover image
+                desc=u'Cover',
+                data=data
+            )
+        )
+        audiofile.save(v2_version=3)
 
     def __resize__(self, album_art_file):
         size = tuple([1000, 1000])
@@ -51,7 +63,7 @@ class AudioMetadata(object):
 
         offset_x = max((size[0] - image.size[0]) / 2, 0)
         offset_y = max((size[1] - image.size[1]) / 2, 0)
-        offset_tuple = (offset_x, offset_y)
+        offset_tuple = (int(offset_x), int(offset_y))
 
         final_thumb = Image.new(mode='RGBA', size=size, color=(0, 0, 0, 255))
         final_thumb.paste(image, offset_tuple)
@@ -66,9 +78,9 @@ class AudioMetadata(object):
 
         audiofile = self.__load__()
 
-        audiofile.tag.artist = info.uploader
-        audiofile.tag.album_artist = info.uploader
-        audiofile.tag.album = info.full_title
-        audiofile.tag.title = info.full_title
-        audiofile.tag.comments.set(info.url)
+        audiofile.tag.artist = str(info.uploader)
+        audiofile.tag.album_artist = str(info.uploader)
+        audiofile.tag.album = str(info.full_title)
+        audiofile.tag.title = str(info.full_title)
+        audiofile.tag.comments.set(str(info.url))
         audiofile.tag.save()
