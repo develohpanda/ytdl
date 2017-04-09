@@ -28,10 +28,10 @@ class Ytdlconfiguration(object):
             configtowrite = configparser.ConfigParser()
             configtowrite['DEFAULT'] = {
                 "uploadedfolderpath": "",
-                "macaddressforgplay": "09:32:24:12:CD:AA",
-                "queueurl": "https://sqs.us-east-1.amazonaws.com/342179033824/to-download",
+                "macaddressforgplay": "",
+                "queueurl": "",
                 "gplaycredentials": "",
-                "uploadername": "rpi"
+                "uploadername": ""
             }
 
             mkdir(self._ytdl_home_path_)
