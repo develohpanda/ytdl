@@ -33,7 +33,8 @@ class AudioDownload(object):
         self.logger.info('Downloading %s', url)
 
         self.downloaded_to_folder = ''
-        output_template = oshelper.join_paths(self.download_folder, '%(id)s\\%(title)s.%(ext)s')
+        output_template = oshelper.join_paths(self.download_folder, '%(id)s')
+        output_template = oshelper.join_paths(output_template, '%(title)s.%(ext)s')
         ydl_opts = {
             'format': 'bestaudio',
             'noplaylist': True,
