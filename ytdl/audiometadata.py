@@ -3,6 +3,8 @@
 import logging
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, error
+from mutagen.easyid3 import EasyID3
+
 from PIL import Image
 
 import oshelper
@@ -76,11 +78,11 @@ class AudioMetadata(object):
 
         self.logger.info('Applying media tags')
 
-        audiofile = self.__load__()
-
-        audiofile.tag.artist = str(info.uploader)
-        audiofile.tag.album_artist = str(info.uploader)
-        audiofile.tag.album = str(info.full_title)
-        audiofile.tag.title = str(info.full_title)
-        audiofile.tag.comments.set(str(info.url))
-        audiofile.tag.save()
+        audiofile = EasyID3(self.track_file)
+        
+        audiofile['artist'] = str(info.uploader)
+        audiofile['albumartist'] = str(info.uploader)
+        audiofile['album'] = str(info.full_title)
+        audiofile['title'] = str(info.full_title)
+        audiofile['website'] = str(info.url)
+        audiofile.save(v2_version=3)

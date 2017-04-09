@@ -81,9 +81,9 @@ class Ytdl(object):
         gmu.logout()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
-        if oshelper.isdir(self.ytdl_config.uploaded_path):
-            oshelper.copy(track_file, self.ytdl_config.uploaded_path)
-            self.logger.info('Track file copied to %s', self.ytdl_config.uploaded_path)
+        if oshelper.isdir(self.ytdl_config.uploads_folder_path):
+            oshelper.copy(track_file, self.ytdl_config.uploads_folder_path)
+            self.logger.info('Track file copied to %s', self.ytdl_config.uploads_folder_path)
 
         oshelper.remove(track_dir)
         self.logger.info('Track directory removed')

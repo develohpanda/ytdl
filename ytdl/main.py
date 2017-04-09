@@ -50,10 +50,10 @@ def remove_old_log_files(config):
 
     current_time = time.time()
 
-    for file_name in os.listdir(config.log_folder):
+    for file_name in oshelper.absolute_files(config.log_folder):
         creation_time = os.path.getctime(file_name)
         if (current_time - creation_time) // (24 * 3600) >= 7:
-            os.unlink(file_name)
+            oshelper.remove(file_name)
             logging.info('Removed %s', file_name)
 
 def main():
