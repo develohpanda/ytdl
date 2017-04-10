@@ -6,9 +6,8 @@ import logging
 
 from youtube_dl import DownloadError, YoutubeDL
 
-import oshelper
-from models import DownloadResult
-
+from ytdl.oshelper import dirname, try_create_lock_file, try_delete_lock_file, join_paths
+from ytdl.models import DownloadResult
 
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"
@@ -20,11 +19,11 @@ class AudioDownload(object):
 
     def __my_hook__(self, hook):
         if hook['status'] == 'downloading':
-            folder_path = oshelper.os.path.dirname(hook['filename'])
-            oshelper.try_create_lock_file(folder_path)
+            folder_path = dirname(hook['filename'])
+            try_create_lock_file(folder_path)
 
         elif hook['status'] == 'finished':
-            self.downloaded_to_folder = oshelper.os.path.dirname(hook['filename'])
+            self.downloaded_to_folder = dirname(hook['filename'])
             self.logger.info('Successfully downloaded, now converting...')
 
     def download(self, url):
@@ -33,8 +32,8 @@ class AudioDownload(object):
         self.logger.info('Downloading %s', url)
 
         self.downloaded_to_folder = ''
-        output_template = oshelper.join_paths(self.download_folder, '%(id)s')
-        output_template = oshelper.join_paths(output_template, '%(title)s.%(ext)s')
+        output_template = join_paths(self.download_folder, '%(id)s')
+        output_template = join_paths(output_template, '%(title)s.%(ext)s')
         ydl_opts = {
             'format': 'bestaudio',
             'noplaylist': True,
@@ -59,4 +58,4 @@ class AudioDownload(object):
             self.logger.error(dlerror)
             return DownloadResult(False, 'Download failed')
         finally:
-            oshelper.try_delete_lock_file(self.downloaded_to_folder)
+            try_delete_lock_file(self.downloaded_to_folder)

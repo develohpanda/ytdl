@@ -1,11 +1,16 @@
 "This is used for uploading downloaded track to google play music"
 
 import logging
-import oshelper
+
+from gmusicapi import Musicmanager, clients
+from ytdl.oshelper import (DEFAULT_FILE_NAME, absolute_files,
+                           get_album_art_file, get_track_file,
+                           get_track_info_file, isdir, lock_file_exists)
+
+from audiometadata import AudioMetadata
 from customerrors import AuthError, DirectoryNotFoundError
 from models import TrackInfo, UploadResult
-from audiometadata import AudioMetadata
-from gmusicapi import Musicmanager, clients
+
 
 class GoolgeMusicUploader(object):
     "Google music upload class"
@@ -44,29 +49,29 @@ class GoolgeMusicUploader(object):
         if not self.manager.is_authenticated:
             raise AuthError("Music Manager not authenticated. Call 'login' first.")
 
-        if not oshelper.isdir(track_dir):
+        if not isdir(track_dir):
             raise DirectoryNotFoundError(track_dir)
 
-        files = oshelper.absolute_files(track_dir)
+        files = absolute_files(track_dir)
 
         info = TrackInfo()
-        info.load(oshelper.get_track_info_file(files))
+        info.load(get_track_info_file(files))
 
-        track_file = oshelper.get_track_file(files)
+        track_file = get_track_file(files)
 
         result = UploadResult(track_dir, track_file, info.full_title)
 
-        if track_file == oshelper.DEFAULT_FILE_NAME:
+        if track_file == DEFAULT_FILE_NAME:
             result.set_failure('MP3 Track file not found')
             return result
 
-        locked = oshelper.lock_file_exists(track_dir)
+        locked = lock_file_exists(track_dir)
         if locked:
             result.set_failure('Lock file exists')
             return result
 
         metadata = AudioMetadata(track_file)
-        metadata.apply_album_art(oshelper.get_album_art_file(files))
+        metadata.apply_album_art(get_album_art_file(files))
         metadata.apply_track_info(info)
 
         success, message = self.__upload_file__(track_file)
