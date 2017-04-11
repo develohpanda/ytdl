@@ -19,6 +19,10 @@ class Ytdlconfiguration(object):
         self.mac_address_for_gplay = ''
         self.queue_url = ''
         self.uploader_name = ''
+        self.playlist_id = ''
+        self.max_youtube_item_load = 5
+        self.youtube_api_key = ''
+        self.youtube_video_template = ''
 
     def load(self):
         "Load from config file"
@@ -27,11 +31,15 @@ class Ytdlconfiguration(object):
         if not exists(self.config_file_path):
             configtowrite = configparser.ConfigParser()
             configtowrite['DEFAULT'] = {
-                "uploadedfolderpath": "",
-                "macaddressforgplay": "",
-                "queueurl": "",
-                "gplaycredentials": "",
-                "uploadername": ""
+                "uploads_folder_path": "",
+                "mac_address_for_gplay": "",
+                "queue_url": "",
+                "googleplay_credential_file": "",
+                "uploader_name": "",
+                "playlist_id":"",
+                "max_youtube_item_load": "",
+                "youtube_api_key": "",
+                "youtube_video_template": ""
             }
 
             mkdir(self._ytdl_home_path_)
@@ -40,11 +48,16 @@ class Ytdlconfiguration(object):
                 configtowrite.write(configfile)
 
         config.read(self.config_file_path)
-        self.uploads_folder_path = config['DEFAULT']['uploadedfolderpath']
-        self.mac_address_for_gplay = config['DEFAULT']['macaddressforgplay']
-        self.queue_url = config['DEFAULT']['queueurl']
-        self.googleplay_credential_file = config['DEFAULT']['gplaycredentials']
-        self.uploader_name = config['DEFAULT']['uploadername']
+
+        self.uploads_folder_path = config['DEFAULT']['uploads_folder_path']
+        self.mac_address_for_gplay = config['DEFAULT']['mac_address_for_gplay']
+        self.queue_url = config['DEFAULT']['queue_url']
+        self.googleplay_credential_file = config['DEFAULT']['googleplay_credential_file']
+        self.uploader_name = config['DEFAULT']['uploader_name']
+        self.playlist_id = config['DEFAULT']['playlist_id']
+        self.max_youtube_item_load = int(config['DEFAULT']['max_youtube_item_load'])
+        self.youtube_api_key = config['DEFAULT']['youtube_api_key']
+        self.youtube_video_template = config['DEFAULT']['youtube_video_template']
 
     def is_valid(self):
         "Is a valid config"
@@ -52,4 +65,7 @@ class Ytdlconfiguration(object):
         valid = valid and len(self.mac_address_for_gplay) == 17
         valid = valid and len(self.queue_url) > 0
         valid = valid and len(self.uploader_name) > 0
+        valid = valid and len(self.youtube_api_key) > 0
+        valid = valid and len(self.playlist_id) > 0
+        valid = valid and len(self.youtube_video_template) > 0
         return valid

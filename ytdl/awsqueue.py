@@ -3,6 +3,7 @@
 import logging
 
 import boto3
+import json
 
 class Awsqueue(object):
     "Calling an aws queue"
@@ -20,3 +21,13 @@ class Awsqueue(object):
         except boto3.exceptions.Boto3Error as awserror:
             self.logger.error(awserror)
             return []
+
+    def send_message(self, payload):
+        "Sends the payload to the queue"
+        self.logger.info('Sending message')
+        try:
+            sqs = boto3.resource('sqs')
+            queue = sqs.Queue(self.queue_url)
+            return queue.send_message(MessageBody=json.dumps(payload))
+        except boto3.exceptions.Boto3Error as awserror:
+            self.logger.error(awserror)

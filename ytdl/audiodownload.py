@@ -6,8 +6,8 @@ import logging
 
 from youtube_dl import DownloadError, YoutubeDL
 
-from ytdl.oshelper import dirname, try_create_lock_file, try_delete_lock_file, join_paths
-from ytdl.models import DownloadResult
+from oshelper import dirname, try_create_lock_file, try_delete_lock_file, join_paths
+from models import DownloadResult
 
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"
@@ -33,7 +33,7 @@ class AudioDownload(object):
 
         self.downloaded_to_folder = ''
         output_template = join_paths(self.download_folder, '%(id)s')
-        output_template = join_paths(output_template, '%(title)s.%(ext)s')
+        output_template = join_paths(output_template, '%(id)s.%(ext)s')
         ydl_opts = {
             'format': 'bestaudio',
             'noplaylist': True,

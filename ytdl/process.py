@@ -1,4 +1,4 @@
-"Main"
+"process"
 
 import datetime
 import time
@@ -9,6 +9,7 @@ import sys
 import oshelper
 from ytdl import Ytdl
 from ytdlconfiguration import Ytdlconfiguration
+from playlistlistener import Playlistlistener
 
 def configure_loggers(config):
     "Configure logger"
@@ -16,7 +17,7 @@ def configure_loggers(config):
     logging.getLogger('').handlers = []
 
     oshelper.mkdir(config.log_folder)
-    logs_file_name = os.path.join(config.log_folder, str(datetime.date.today()) + ".log")
+    logs_file_name = os.path.join(config.log_folder, str(datetime.date.today()) + "process.log")
 
     logging.basicConfig(
         filename=logs_file_name,
@@ -56,8 +57,8 @@ def remove_old_log_files(config):
             oshelper.remove(file_name)
             logging.info('Removed %s', file_name)
 
-def main():
-    "Main"
+def process():
+    "process"
 
     config = Ytdlconfiguration()
 
@@ -70,9 +71,9 @@ def main():
         logger.error("Invalid config at %s", config.config_file_path)
         return
 
-    Ytdl(config).run()
+    Ytdl(config).download_and_upload()
 
     remove_old_log_files(config)
 
 if __name__ == '__main__':
-    main()
+    process()

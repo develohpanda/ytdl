@@ -3,7 +3,7 @@
 import logging
 
 from gmusicapi import Musicmanager, clients
-from ytdl.oshelper import (DEFAULT_FILE_NAME, absolute_files,
+from oshelper import (DEFAULT_FILE_NAME, absolute_files,
                            get_album_art_file, get_track_file,
                            get_track_info_file, isdir, lock_file_exists)
 

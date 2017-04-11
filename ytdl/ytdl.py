@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import logging
+import json
 import oshelper
 from audiodownload import AudioDownload
 from awsqueue import Awsqueue
@@ -28,8 +29,8 @@ class Ytdl(object):
 
         self.logger.info('Loaded %d messages', len(messages))
         for message in messages:
-            payload = Payload()
-            payload.load(message.body)
+            values = json.loads(message)
+            payload = Payload(values['link'])
 
             download_result = AudioDownload(self.ytdl_config).download(payload.url)
 
@@ -88,7 +89,7 @@ class Ytdl(object):
         oshelper.remove(track_dir)
         self.logger.info('Track directory removed')
 
-    def run(self):
+    def download_and_upload(self):
         "Main run method"
 
         self.logger.info('Starting up')

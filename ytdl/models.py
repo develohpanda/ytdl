@@ -3,7 +3,7 @@
 import json
 import logging
 
-from ytdl.oshelper import  DEFAULT_FILE_NAME
+from oshelper import  DEFAULT_FILE_NAME
 
 class TrackInfo(object):
     "Information about a particular track"
@@ -30,14 +30,8 @@ class TrackInfo(object):
 
 class Payload(object):
     "The AWS Queue object payload"
-    def __init__(self):
-        self.url = ''
-
-    def load(self, message):
-        "Loads from the message content into the object"
-
-        values = json.loads(message)
-        self.url = values['link']
+    def __init__(self, url):
+        self.url = url
 
 class UploadResult(object):
     "Represents the result of uploading tracks"
