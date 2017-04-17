@@ -30,7 +30,7 @@ class Ytdl(object):
         self.logger.info('Loaded %d messages', len(messages))
         for message in messages:
             values = json.loads(message.body)
-            payload = Payload(values['link'])
+            payload = Payload(values['url'])
 
             download_result = AudioDownload(self.ytdl_config).download(payload.url)
 
