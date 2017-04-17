@@ -17,7 +17,7 @@ class Playlistlistener(object):
 
         self.youtube_thing = build("youtube", "v3", developerKey=self.apikey)
 
-        req = self.youtube_thing.playlistItems().list(
+        request = self.youtube_thing.playlistItems().list(
             playlistId=self.ytdl_config.playlist_id,
             part="snippet",
             maxResults=self.ytdl_config.max_youtube_item_load,
@@ -26,13 +26,16 @@ class Playlistlistener(object):
 
         video_links = []
 
-        while req:
-            response = req.execute()
+        while request:
+            response = request.execute()
+
             # Print information about each video.
             for playlist_item in response["items"]:
                 video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-                video_ids.append(str.format(self.ytdl_config.youtube_video_template, video_id)
-            req = self.youtube_thing.playlistItems().list_next(req, response)
+                video_link = str.format(self.ytdl_config.youtube_video_template, video_id)
+                video_links.append(video_link)
+
+            request = self.youtube_thing.playlistItems().list_next(request, response)
 
         for link in video_links:
             aws.send_message(Payload(link))
