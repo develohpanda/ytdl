@@ -67,7 +67,8 @@ class Playlistlistener(object):
 
         self.logger.info("Sent %d messages to queue", len(video_links))
 
-        self.__save_last_upload_time__(max(upload_times))
+        if len(upload_times) > 0:
+            self.__save_last_upload_time__(max(upload_times))
     
     def __get_last_upload_time__(self):
         if file_exists(self.ytdl_config.listener_time_file_path):
