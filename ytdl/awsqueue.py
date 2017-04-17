@@ -28,6 +28,6 @@ class Awsqueue(object):
         try:
             sqs = boto3.resource('sqs')
             queue = sqs.Queue(self.queue_url)
-            return queue.send_message(MessageBody=json.dumps(payload))
+            return queue.send_message(MessageBody=json.dumps(payload.__dict__))
         except boto3.exceptions.Boto3Error as awserror:
             self.logger.error(awserror)

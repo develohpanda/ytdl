@@ -15,7 +15,7 @@ class Playlistlistener(object):
         "Add to queue"
         aws = Awsqueue(self.ytdl_config.queue_url)
 
-        self.youtube_thing = build("youtube", "v3", developerKey=self.apikey)
+        self.youtube_thing = build("youtube", "v3", developerKey=self.ytdl_config.youtube_api_key)
 
         request = self.youtube_thing.playlistItems().list(
             playlistId=self.ytdl_config.playlist_id,
@@ -32,7 +32,7 @@ class Playlistlistener(object):
             # Print information about each video.
             for playlist_item in response["items"]:
                 video_id = playlist_item["snippet"]["resourceId"]["videoId"]
-                video_link = str.format(self.ytdl_config.youtube_video_template, video_id)
+                video_link = self.ytdl_config.youtube_video_template + video_id
                 video_links.append(video_link)
 
             request = self.youtube_thing.playlistItems().list_next(request, response)
