@@ -3,6 +3,8 @@
 import logging
 from datetime import datetime
 
+import dateutil.parser
+import pytz
 from googleapiclient.discovery import build
 
 from awsqueue import Awsqueue
@@ -34,7 +36,7 @@ class Playlistlistener(object):
         video_links = []
         upload_times = []
         last_upload_time = self.__get_last_upload_time__()
-        self.logger.info("Last upload time: %s", datetime.strftime(last_upload_time, self.ytdl_config.yt_time_format))
+        self.logger.info("Last upload time: %s", last_upload_time.isoformat())
 
         while request:
             response = request.execute()
@@ -42,7 +44,7 @@ class Playlistlistener(object):
             
             # Print information about each video.
             for playlist_item in response["items"]:
-                upload_time = datetime.strptime(playlist_item["snippet"]["publishedAt"], self.ytdl_config.yt_time_format)
+                upload_time = dateutil.parser.parse(playlist_item["snippet"]["publishedAt"])
                 upload_times.append(upload_time)
 
                 if upload_time <= last_upload_time:
@@ -71,10 +73,12 @@ class Playlistlistener(object):
         if file_exists(self.ytdl_config.listener_time_file_path):
             with open(self.ytdl_config.listener_time_file_path, 'r') as f:
                 contents = f.read()
-                return datetime.strptime(contents, self.ytdl_config.yt_time_format)
+                return dateutil.parser.parse(contents)
         else:
-            return datetime.min
+            min_date = datetime.min
+            min_date = min_date.replace(tzinfo=pytz.UTC)
+            return min_date
 
     def __save_last_upload_time__(self, last_upload_time):
         with open(self.ytdl_config.listener_time_file_path, 'w') as f:
-            f.write(datetime.strftime(last_upload_time, self.ytdl_config.yt_time_format))
+            f.write(last_upload_time.isoformat())

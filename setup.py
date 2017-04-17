@@ -15,7 +15,8 @@ setup(
         'mutagen',
         'configparser',
         'image',
-        'google-api-python-client'
+        'google-api-python-client',
+        'pytz'
     ],
     dependency_links=[
         'https://github.com/develohpanda/gmusicapi/tarball/develop#egg=gmusicapi-10.1.2rc1'

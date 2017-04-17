@@ -14,7 +14,6 @@ class Ytdlconfiguration(object):
         self.config_file_path = join_paths(self._ytdl_home_path_, 'config.ini')
         self.download_folder = join_paths(self._ytdl_home_path_, 'downloads')
         self.log_folder = join_paths(self._ytdl_home_path_, 'logs')
-        self.yt_time_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
         self.googleplay_credential_file = ''
         self.uploads_folder_path = ''
