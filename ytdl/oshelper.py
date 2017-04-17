@@ -29,6 +29,10 @@ def try_create_lock_file(path):
         open(lock_file_path, 'w+')
         logging.getLogger(__name__).info('Created lockfile - %s', lock_file_path)
 
+def file_exists(path):
+    "Determines whether or not a file exists"
+    return os.path.isfile(path)
+
 def lock_file_exists(path):
     "Determines whether or not a LOCK file exists to prevent any changes"
     if os.path.isdir(path):

@@ -10,9 +10,11 @@ class Ytdlconfiguration(object):
     def __init__(self):
         self.__home_path__ = expanduser('~')
         self._ytdl_home_path_ = join_paths(self.__home_path__, '.ytdl')
+        self.listener_time_file_path = join_paths(self._ytdl_home_path_, 'listener-timestamp.txt')
         self.config_file_path = join_paths(self._ytdl_home_path_, 'config.ini')
         self.download_folder = join_paths(self._ytdl_home_path_, 'downloads')
         self.log_folder = join_paths(self._ytdl_home_path_, 'logs')
+        self.yt_time_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
         self.googleplay_credential_file = ''
         self.uploads_folder_path = ''
