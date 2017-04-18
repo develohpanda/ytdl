@@ -85,7 +85,7 @@ class Ytdl(object):
     def __send_notification__(self, title):
         conn = http.client.HTTPSConnection("maker.ifttt.com")
 
-        payload = "{{ \"value1\" : \"Uploaded: {title}\"}}".format(title)
+        payload = "{{ \"value1\" : \"Uploaded: {}\"}}".format(title)
 
         headers = {
             'content-type': "application/json"
