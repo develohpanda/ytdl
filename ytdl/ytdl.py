@@ -83,21 +83,18 @@ class Ytdl(object):
         gmu.logout()
 
     def __send_notification__(self, title):
-        try:
-            conn = http.client.HTTPSConnection("maker.ifttt.com")
+        conn = http.client.HTTPSConnection("maker.ifttt.com")
 
-            payload = "{{ \"value1\" : \"Uploaded: {title}\"}}".format(title)
+        payload = "{{ \"value1\" : \"Uploaded: {title}\"}}".format(title)
 
-            headers = {
-                'content-type': "application/json"
-                }
+        headers = {
+            'content-type': "application/json"
+            }
 
-            conn.request("POST", "/trigger/{}/with/key/{}".format(self.ytdl_config.notification_trigger_name, self.ytdl_config.notification_trigger_key), payload, headers)
+        conn.request("POST", "/trigger/{}/with/key/{}".format(self.ytdl_config.notification_trigger_name, self.ytdl_config.notification_trigger_key), payload, headers)
 
-            res = conn.getresponse()
-            data = res.read()
-        except e:
-            self.logger.error(e)
+        res = conn.getresponse()
+        data = res.read()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
         if oshelper.isdir(self.ytdl_config.uploads_folder_path):
