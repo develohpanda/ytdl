@@ -24,6 +24,8 @@ class Ytdlconfiguration(object):
         self.max_youtube_item_load = 5
         self.youtube_api_key = ''
         self.youtube_video_template = ''
+        self.notification_trigger_name = ''
+        self.notification_trigger_key = ''
 
     def load(self):
         "Load from config file"
@@ -40,7 +42,9 @@ class Ytdlconfiguration(object):
                 "playlist_id":"",
                 "max_youtube_item_load": "",
                 "youtube_api_key": "",
-                "youtube_video_template": ""
+                "youtube_video_template": "",
+                "notification_trigger_name": "",
+                "notification_trigger_key": ""
             }
 
             mkdir(self._ytdl_home_path_)
@@ -59,6 +63,8 @@ class Ytdlconfiguration(object):
         self.max_youtube_item_load = int(config['DEFAULT']['max_youtube_item_load'])
         self.youtube_api_key = config['DEFAULT']['youtube_api_key']
         self.youtube_video_template = config['DEFAULT']['youtube_video_template']
+        self.notification_trigger_name = config['DEFAULT']['notification_trigger_name']
+        self.notification_trigger_key = config['DEFAULT']['notification_trigger_key']
 
     def is_valid(self):
         "Is a valid config"
@@ -69,4 +75,6 @@ class Ytdlconfiguration(object):
         valid = valid and len(self.youtube_api_key) > 0
         valid = valid and len(self.playlist_id) > 0
         valid = valid and len(self.youtube_video_template) > 0
+        valid = valid and len(self.notification_trigger_name) > 0
+        valid = valid and len(self.notification_trigger_key) > 0
         return valid
