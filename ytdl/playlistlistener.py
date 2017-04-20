@@ -96,6 +96,7 @@ class Playlistlistener(object):
         else:
             min_date = datetime.utcnow()
             min_date = min_date.replace(tzinfo=pytz.UTC)
+            self.__save_last_upload_time__(min_date)
             return min_date
 
     def __save_last_upload_time__(self, last_upload_time):
