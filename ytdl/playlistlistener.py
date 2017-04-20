@@ -94,7 +94,9 @@ class Playlistlistener(object):
                 contents = file.read()
                 return dateutil.parser.parse(contents)
         else:
-            return datetime.utcnow()
+            min_date = datetime.utcnow()
+            min_date = min_date.replace(tzinfo=pytz.UTC)
+            return min_date
 
     def __save_last_upload_time__(self, last_upload_time):
         with open(self.ytdl_config.listener_time_file_path, 'w') as file:
