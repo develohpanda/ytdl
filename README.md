@@ -7,17 +7,19 @@ Will only download tracks added to playlist since the first time the listen meth
 sudo pip3 install awscli
 aws configure
 ```
-### Install ffmpeg ([instructions](https://sebastian.korotkiewicz.eu/2016/09/30/ffmpeg-on-raspbian-raspberry-pi/))
+
+### Install libav-tools
 ``` bash
 sudo apt-get install -y libav-tools
 ```
 
-### Install this repository
+### Install this YTDL repository
 ``` bash
 pip3 install git+https://github.com/develohpanda/ytdl --process-dependency-links
 ```
 
 ### Setup Gmusic Credentials in Python
+If running your Raspberry Pi headless, you'll have to do this from your computer then copy the file across
 ``` python
 import gmusicapi
 gmusicapi.clients.Musicmanager.perform_oauth(False)
