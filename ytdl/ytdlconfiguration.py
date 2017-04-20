@@ -3,14 +3,17 @@
 import configparser
 from os.path import expanduser, exists
 
-from oshelper import join_paths, mkdir
+from ytdl.oshelper import join_paths, mkdir
+
 
 class Ytdlconfiguration(object):
     "Ytdl Configuration"
+
     def __init__(self):
         self.__home_path__ = expanduser('~')
         self._ytdl_home_path_ = join_paths(self.__home_path__, '.ytdl')
-        self.listener_time_file_path = join_paths(self._ytdl_home_path_, 'listener-timestamp.txt')
+        self.listener_time_file_path = join_paths(self._ytdl_home_path_,
+                                                  'listener-timestamp.txt')
         self.config_file_path = join_paths(self._ytdl_home_path_, 'config.ini')
         self.download_folder = join_paths(self._ytdl_home_path_, 'downloads')
         self.log_folder = join_paths(self._ytdl_home_path_, 'logs')
@@ -39,7 +42,7 @@ class Ytdlconfiguration(object):
                 "queue_url": "",
                 "googleplay_credential_file": "",
                 "uploader_name": "",
-                "playlist_id":"",
+                "playlist_id": "",
                 "max_youtube_item_load": "",
                 "youtube_api_key": "",
                 "youtube_video_template": "",
@@ -60,7 +63,8 @@ class Ytdlconfiguration(object):
         self.googleplay_credential_file = config['DEFAULT']['googleplay_credential_file']
         self.uploader_name = config['DEFAULT']['uploader_name']
         self.playlist_id = config['DEFAULT']['playlist_id']
-        self.max_youtube_item_load = int(config['DEFAULT']['max_youtube_item_load'])
+        self.max_youtube_item_load = int(
+            config['DEFAULT']['max_youtube_item_load'])
         self.youtube_api_key = config['DEFAULT']['youtube_api_key']
         self.youtube_video_template = config['DEFAULT']['youtube_video_template']
         self.notification_trigger_name = config['DEFAULT']['notification_trigger_name']

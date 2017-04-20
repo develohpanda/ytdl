@@ -2,18 +2,21 @@
 
 from __future__ import unicode_literals
 
-import logging
 import json
-import oshelper
-from audiodownload import AudioDownload
-from awsqueue import Awsqueue
-from customerrors import AuthError, DirectoryNotFoundError
-from gmupload import GoolgeMusicUploader
-from models import Payload
+import logging
+import http.client
+
+from ytdl.audiodownload import AudioDownload
+from ytdl.awsqueue import Awsqueue
+from ytdl.customerrors import AuthError, DirectoryNotFoundError
+from ytdl.gmupload import GoolgeMusicUploader
+from ytdl.models import Payload
+from ytdl.oshelper import absolute_dirs, copy, isdir, remove
 
 
-class Ytdl(object):
+class Downloadupload(object):
     "Youtube downloader"
+
     def __init__(self, ytdl_config):
         self.logger = logging.getLogger(__name__)
         self.ytdl_config = ytdl_config
@@ -32,11 +35,13 @@ class Ytdl(object):
             values = json.loads(message.body)
             payload = Payload(values['url'])
 
-            download_result = AudioDownload(self.ytdl_config).download(payload.url)
+            download_result = AudioDownload(
+                self.ytdl_config).download(payload.url)
 
             if download_result.success:
                 message.delete()
-                self.logger.info('Message deleted from queue (%s)', download_result.message)
+                self.logger.info(
+                    'Message deleted from queue (%s)', download_result.message)
             else:
                 self.logger.info(download_result.message)
 
@@ -45,7 +50,7 @@ class Ytdl(object):
     def __upload_tracks__(self):
         "Uploads any tracks in the downloaded folder"
 
-        track_dirs = oshelper.absolute_dirs(self.ytdl_config.download_folder)
+        track_dirs = absolute_dirs(self.ytdl_config.download_folder)
         if len(track_dirs) == 0:
             self.logger.info('No tracks to upload')
             return
@@ -89,19 +94,23 @@ class Ytdl(object):
 
         headers = {
             'content-type': "application/json"
-            }
+        }
 
-        conn.request("POST", "/trigger/{}/with/key/{}".format(self.ytdl_config.notification_trigger_name, self.ytdl_config.notification_trigger_key), payload, headers)
+        conn.request("POST", "/trigger/{}/with/key/{}".format(
+            self.ytdl_config.notification_trigger_name,
+            self.ytdl_config.notification_trigger_key),
+            payload,
+            headers)
 
-        res = conn.getresponse()
-        data = res.read()
+        conn.getresponse()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
-        if oshelper.isdir(self.ytdl_config.uploads_folder_path):
-            oshelper.copy(track_file, self.ytdl_config.uploads_folder_path)
-            self.logger.info('Track file copied to %s', self.ytdl_config.uploads_folder_path)
+        if isdir(self.ytdl_config.uploads_folder_path):
+            copy(track_file, self.ytdl_config.uploads_folder_path)
+            self.logger.info('Track file copied to %s',
+                             self.ytdl_config.uploads_folder_path)
 
-        oshelper.remove(track_dir)
+        remove(track_dir)
         self.logger.info('Track directory removed')
 
     def download_and_upload(self):

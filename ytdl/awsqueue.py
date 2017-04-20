@@ -1,12 +1,14 @@
 "Talks to AWS"
 
+import json
 import logging
 
 import boto3
-import json
+
 
 class Awsqueue(object):
     "Calling an aws queue"
+
     def __init__(self, queue_url):
         self.queue_url = queue_url
         self.logger = logging.getLogger(__name__)
@@ -17,7 +19,8 @@ class Awsqueue(object):
         try:
             sqs = boto3.resource('sqs')
             queue = sqs.Queue(self.queue_url)
-            return queue.receive_messages(MaxNumberOfMessages=10, VisibilityTimeout=600)
+            return queue.receive_messages(
+                MaxNumberOfMessages=10, VisibilityTimeout=600)
         except boto3.exceptions.Boto3Error as awserror:
             self.logger.error(awserror)
             return []

@@ -1,23 +1,24 @@
 "process"
 
 import datetime
-import time
 import logging
 import os
 import sys
+import time
 
-import oshelper
-from ytdl import Ytdl
-from ytdlconfiguration import Ytdlconfiguration
-from playlistlistener import Playlistlistener
+from ytdl.downloadupload import Downloadupload
+from ytdl.oshelper import absolute_files, mkdir, remove
+from ytdl.ytdlconfiguration import Ytdlconfiguration
+
 
 def configure_loggers(config):
     "Configure logger"
 
     logging.getLogger('').handlers = []
 
-    oshelper.mkdir(config.log_folder)
-    logs_file_name = os.path.join(config.log_folder, str(datetime.date.today()) + "process.log")
+    mkdir(config.log_folder)
+    logs_file_name = os.path.join(config.log_folder, str(
+        datetime.date.today()) + "process.log")
 
     logging.basicConfig(
         filename=logs_file_name,
@@ -37,6 +38,7 @@ def configure_loggers(config):
 
     sys.excepthook = handle_exception
 
+
 def handle_exception(exc_type, exc_value, exc_traceback):
     "Handle uncaught exception"
     if issubclass(exc_type, KeyboardInterrupt):
@@ -44,18 +46,21 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         return
 
     logger = logging.getLogger(__name__)
-    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    logger.error("Uncaught exception", exc_info=(
+        exc_type, exc_value, exc_traceback))
+
 
 def remove_old_log_files(config):
     "Remove old log files"
 
     current_time = time.time()
 
-    for file_name in oshelper.absolute_files(config.log_folder):
+    for file_name in absolute_files(config.log_folder):
         creation_time = os.path.getctime(file_name)
         if (current_time - creation_time) // (24 * 3600) >= 7:
-            oshelper.remove(file_name)
+            remove(file_name)
             logging.info('Removed %s', file_name)
+
 
 def process():
     "process"
@@ -71,9 +76,10 @@ def process():
         logger.error("Invalid config at %s", config.config_file_path)
         return
 
-    Ytdl(config).download_and_upload()
+    Downloadupload(config).download_and_upload()
 
     remove_old_log_files(config)
+
 
 if __name__ == '__main__':
     process()

@@ -5,9 +5,10 @@ from __future__ import unicode_literals
 import logging
 
 from youtube_dl import DownloadError, YoutubeDL
+from ytdl.models import DownloadResult
+from ytdl.oshelper import (dirname, join_paths, try_create_lock_file,
+                           try_delete_lock_file)
 
-from oshelper import dirname, try_create_lock_file, try_delete_lock_file, join_paths
-from models import DownloadResult
 
 class AudioDownload(object):
     "This is used for downloading a youtube video as mp3"

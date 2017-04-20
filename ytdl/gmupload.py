@@ -3,13 +3,12 @@
 import logging
 
 from gmusicapi import Musicmanager, clients
-
 from ytdl.audiometadata import AudioMetadata
 from ytdl.customerrors import AuthError, DirectoryNotFoundError
 from ytdl.models import TrackInfo, UploadResult
-from ytdl.oshelper import (DEFAULT_FILE_NAME, absolute_files, get_album_art_file,
-                           get_track_file, get_track_info_file, isdir,
-                           lock_file_exists)
+from ytdl.oshelper import (DEFAULT_FILE_NAME, absolute_files,
+                           get_album_art_file, get_track_file,
+                           get_track_info_file, isdir, lock_file_exists)
 
 
 class GoolgeMusicUploader(object):
@@ -32,7 +31,8 @@ class GoolgeMusicUploader(object):
 
         if not self.manager.login(self.credential_file, self.mac_address):
             raise AuthError(
-                'Could not authenticate music manager using {}'.format(self.credential_file))
+                'Could not authenticate music manager using {}'.format(
+                    self.credential_file))
 
     def logout(self):
         "Logs out"
@@ -47,7 +47,8 @@ class GoolgeMusicUploader(object):
         "Does the upload."
 
         if not self.manager.is_authenticated:
-            raise AuthError("Music Manager not authenticated. Call 'login' first.")
+            raise AuthError(
+                "Music Manager not authenticated. Call 'login' first.")
 
         if not isdir(track_dir):
             raise DirectoryNotFoundError(track_dir)
@@ -93,4 +94,5 @@ class GoolgeMusicUploader(object):
 
         elif upload_result[2] != {}:
             reason = list(upload_result[2].viewitems())[0]
-            return False, 'Couldn\'t upload {} because {}'.format(reason[0], reason[1])
+            return False, 'Couldn\'t upload {} because {}'.format(reason[0],
+                                                                  reason[1])

@@ -1,16 +1,16 @@
 "Listens to playlist for new tracks"
 
-import http.client
 import logging
 from datetime import datetime
 
+import http.client
+from googleapiclient.discovery import build
+from ytdl.awsqueue import Awsqueue
+from ytdl.models import Payload
+from ytdl.oshelper import file_exists
+
 import dateutil.parser
 import pytz
-from googleapiclient.discovery import build
-
-from awsqueue import Awsqueue
-from models import Payload
-from oshelper import file_exists, join_paths
 
 
 class Youtubeentity(object):
@@ -20,6 +20,7 @@ class Youtubeentity(object):
         self.title = title
         self.link = link
         self.upload_time = upload_time
+
 
 class Playlistlistener(object):
     "Listens to playlist for new tracks"
@@ -33,7 +34,8 @@ class Playlistlistener(object):
         "Add to queue"
         aws = Awsqueue(self.ytdl_config.queue_url)
 
-        self.youtube_thing = build("youtube", "v3", developerKey=self.ytdl_config.youtube_api_key)
+        self.youtube_thing = build(
+            "youtube", "v3", developerKey=self.ytdl_config.youtube_api_key)
 
         request = self.youtube_thing.playlistItems().list(
             playlistId=self.ytdl_config.playlist_id,
@@ -49,11 +51,12 @@ class Playlistlistener(object):
         while request:
             response = request.execute()
             has_more = True
-            
+
             # Print information about each video.
             for playlist_item in response["items"]:
                 title = playlist_item["snippet"]["title"]
-                upload_time = dateutil.parser.parse(playlist_item["snippet"]["publishedAt"])
+                upload_time = dateutil.parser.parse(
+                    playlist_item["snippet"]["publishedAt"])
                 video_id = playlist_item["snippet"]["resourceId"]["videoId"]
                 video_link = self.ytdl_config.youtube_video_template + video_id
 
@@ -78,9 +81,10 @@ class Playlistlistener(object):
 
         self.logger.info("Sent %d messages to queue", len(entities))
 
-        if len(upload_times) > 0:
-            self.__save_last_upload_time__(max(upload_times))
-    
+        if len(entities) > 0:
+            self.__save_last_upload_time__(
+                max(entity.upload_time for entity in entities))
+
     def __send_notification__(self, title):
         conn = http.client.HTTPSConnection("maker.ifttt.com")
 
@@ -88,13 +92,15 @@ class Playlistlistener(object):
 
         headers = {
             'content-type': "application/json"
-            }
+        }
 
-        conn.request("POST", "/trigger/{}/with/key/{}".format(self.ytdl_config.notification_trigger_name, self.ytdl_config.notification_trigger_key), payload, headers)
+        conn.request("POST",
+                     "/trigger/{}/with/key/{}"
+                     .format(self.ytdl_config.notification_trigger_name,
+                             self.ytdl_config.notification_trigger_key),
+                     payload, headers)
 
-        res = conn.getresponse()
-        data = res.read()
-
+        conn.getresponse()
 
     def __get_last_upload_time__(self):
         if file_exists(self.ytdl_config.listener_time_file_path):

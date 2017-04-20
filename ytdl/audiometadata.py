@@ -1,14 +1,15 @@
 "Apply audio metadata"
 
 import logging
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, error
+
 from mutagen.easyid3 import EasyID3
-
+from mutagen.id3 import APIC, ID3, error
+from mutagen.mp3 import MP3
 from PIL import Image
+from ytdl.customerrors import FileNotFoundError
+from ytdl.oshelper import (DEFAULT_FILE_NAME, dirname, filename_no_extension,
+                           join_paths)
 
-import oshelper
-from customerrors import FileNotFoundError
 
 class AudioMetadata(object):
     "Responsible for applying metadata to file"
@@ -31,7 +32,7 @@ class AudioMetadata(object):
 
     def apply_album_art(self, album_art_file):
         "Applies the album art into the mp3 file"
-        if album_art_file == oshelper.DEFAULT_FILE_NAME:
+        if album_art_file == DEFAULT_FILE_NAME:
             self.logger.warning('No album art file present')
             return
 
@@ -45,9 +46,9 @@ class AudioMetadata(object):
         data = open(resized_album_art_file, 'rb').read()
         audiofile.tags.add(
             APIC(
-                encoding=3, # 3 is for utf-8
-                mime='image/jpeg', # image/jpeg or image/png
-                type=3, # 3 is for the cover image
+                encoding=3,  # 3 is for utf-8
+                mime='image/jpeg',  # image/jpeg or image/png
+                type=3,  # 3 is for the cover image
                 desc=u'Cover',
                 data=data
             )
@@ -56,9 +57,10 @@ class AudioMetadata(object):
 
     def __resize__(self, album_art_file):
         size = tuple([1000, 1000])
-        dirname = oshelper.dirname(album_art_file)
-        filename = oshelper.filename_no_extension(album_art_file)
-        resized_album_art_file = oshelper.join_paths(dirname, filename + '-resized.png')
+        dirname = dirname(album_art_file)
+        filename = filename_no_extension(album_art_file)
+        resized_album_art_file = join_paths(
+            dirname, filename + '-resized.png')
 
         image = Image.open(album_art_file)
         image.thumbnail(size, Image.ANTIALIAS)
@@ -79,7 +81,7 @@ class AudioMetadata(object):
         self.logger.info('Applying media tags')
 
         audiofile = EasyID3(self.track_file)
-        
+
         audiofile['artist'] = str(info.uploader)
         audiofile['albumartist'] = str(info.uploader)
         audiofile['album'] = str(info.full_title)

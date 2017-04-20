@@ -6,9 +6,10 @@ import os
 import sys
 import time
 
-from ytdl.oshelper import mkdir, absolute_files, remove
-from ytdl.ytdlconfiguration import Ytdlconfiguration
+from ytdl.oshelper import absolute_files, mkdir, remove
 from ytdl.playlistlistener import Playlistlistener
+from ytdl.ytdlconfiguration import Ytdlconfiguration
+
 
 def configure_loggers(config):
     "Configure logger"
@@ -16,7 +17,8 @@ def configure_loggers(config):
     logging.getLogger('').handlers = []
 
     mkdir(config.log_folder)
-    logs_file_name = os.path.join(config.log_folder, str(datetime.date.today()) + "listen.log")
+    logs_file_name = os.path.join(config.log_folder,
+                                  str(datetime.date.today()) + "listen.log")
 
     logging.basicConfig(
         filename=logs_file_name,
@@ -36,6 +38,7 @@ def configure_loggers(config):
 
     sys.excepthook = handle_exception
 
+
 def handle_exception(exc_type, exc_value, exc_traceback):
     "Handle uncaught exception"
     if issubclass(exc_type, KeyboardInterrupt):
@@ -43,7 +46,9 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         return
 
     logger = logging.getLogger(__name__)
-    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    logger.error("Uncaught exception", exc_info=(
+        exc_type, exc_value, exc_traceback))
+
 
 def remove_old_log_files(config):
     "Remove old log files"
@@ -55,6 +60,7 @@ def remove_old_log_files(config):
         if (current_time - creation_time) // (24 * 3600) >= 7:
             remove(file_name)
             logging.info('Removed %s', file_name)
+
 
 def listen():
     "listen"
@@ -73,6 +79,7 @@ def listen():
     Playlistlistener(config).listen_and_add_to_queue()
 
     remove_old_log_files(config)
+
 
 if __name__ == '__main__':
     listen()

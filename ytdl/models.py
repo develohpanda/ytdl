@@ -3,10 +3,12 @@
 import json
 import logging
 
-from ytdl.oshelper import  DEFAULT_FILE_NAME
+from ytdl.oshelper import DEFAULT_FILE_NAME
+
 
 class TrackInfo(object):
     "Information about a particular track"
+
     def __init__(self):
         self.uploader = 'Default'
         self.full_title = 'Default'
@@ -28,10 +30,13 @@ class TrackInfo(object):
         self.url = info['webpage_url']
         self.is_default = False
 
+
 class Payload(object):
     "The AWS Queue object payload"
+
     def __init__(self, url):
         self.url = url
+
 
 class UploadResult(object):
     "Represents the result of uploading tracks"
@@ -52,6 +57,7 @@ class UploadResult(object):
         "Sets failure properties on the result object"
         self.message = message
         self.success = False
+
 
 class DownloadResult(object):
     "Represents the result of downloading tracks"
