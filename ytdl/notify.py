@@ -1,5 +1,6 @@
 "Responsible for sending a notification"
 
+import json
 import logging
 
 import http.client
@@ -15,19 +16,21 @@ class Iftttnotify(object):
     def send(self, value1="", value2="", value3=""):
         "Sends value1, value2 and value3"
 
-        conn = http.client.HTTPSConnection("maker.ifttt.com")
+        try:
+            conn = http.client.HTTPSConnection("maker.ifttt.com")
 
-        payload = "{{ \"value1\" : \"{}\", \"value2\" : \"{}\", \"value3\" : \"{}\",}}".format(
-            value1, value2, value3)
+            payload = {'value1': value1, 'value2': value2, 'value3': value3}
 
-        headers = {
-            'content-type': "application/json"
-        }
+            headers = {
+                'content-type': "application/json"
+            }
 
-        conn.request("POST", "/trigger/{}/with/key/{}".format(
-            self.ytdl_config.notification_trigger_name,
-            self.ytdl_config.notification_trigger_key),
-            payload,
-            headers)
+            conn.request("POST", "/trigger/{}/with/key/{}".format(
+                self.ytdl_config.notification_trigger_name,
+                self.ytdl_config.notification_trigger_key),
+                json.dumps(payload),
+                headers)
 
-        conn.getresponse()
+            conn.getresponse()
+        except Exception as ex:
+            self.logger.exception(ex)
