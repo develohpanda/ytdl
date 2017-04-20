@@ -57,10 +57,10 @@ class AudioMetadata(object):
 
     def __resize__(self, album_art_file):
         size = tuple([1000, 1000])
-        dirname = dirname(album_art_file)
+        directory_name = dirname(album_art_file)
         filename = filename_no_extension(album_art_file)
         resized_album_art_file = join_paths(
-            dirname, filename + '-resized.png')
+            directory_name, filename + '-resized.png')
 
         image = Image.open(album_art_file)
         image.thumbnail(size, Image.ANTIALIAS)
