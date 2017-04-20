@@ -80,7 +80,8 @@ class Playlistlistener(object):
 
         for entity in entities:
             aws.send_message(Payload(entity.link))
-            Iftttnotify(self.ytdl_config).send(entity.title)
+            Iftttnotify(self.ytdl_config).send(
+                "Added to queue: {}".format(entity.title))
 
         self.logger.info("Sent %d messages to queue", len(entities))
 
