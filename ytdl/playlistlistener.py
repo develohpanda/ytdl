@@ -35,7 +35,10 @@ class Playlistlistener(object):
         aws = Awsqueue(self.ytdl_config.queue_url)
 
         self.youtube_thing = build(
-            "youtube", "v3", developerKey=self.ytdl_config.youtube_api_key)
+            "youtube",
+            "v3",
+            developerKey=self.ytdl_config.youtube_api_key,
+            cache_discovery=False)
 
         request = self.youtube_thing.playlistItems().list(
             playlistId=self.ytdl_config.playlist_id,
