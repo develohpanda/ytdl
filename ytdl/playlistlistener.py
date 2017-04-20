@@ -91,7 +91,7 @@ class Playlistlistener(object):
                 contents = f.read()
                 return dateutil.parser.parse(contents)
         else:
-            min_date = datetime.min
+            min_date = datetime.utcnow
             min_date = min_date.replace(tzinfo=pytz.UTC)
             return min_date
 

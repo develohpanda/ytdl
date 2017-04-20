@@ -1,5 +1,7 @@
 Works on Raspberry Pi Debbie with the default python 3.4.2
 
+Will only download tracks added to playlist since the first time the listen method ran
+
 ### Setup aws credentials
 ``` bash
 sudo pip3 install awscli
