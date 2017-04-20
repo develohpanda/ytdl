@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 
 import json
 import logging
-import http.client
 
 from ytdl.audiodownload import AudioDownload
 from ytdl.awsqueue import Awsqueue
 from ytdl.customerrors import AuthError, DirectoryNotFoundError
 from ytdl.gmupload import GoolgeMusicUploader
 from ytdl.models import Payload
+from ytdl.notify import Iftttnotify
 from ytdl.oshelper import absolute_dirs, copy, isdir, remove
 
 
@@ -78,7 +78,8 @@ class Downloadupload(object):
                     self.__successful_upload_tasks__(
                         upload_result.track_file,
                         upload_result.track_dir)
-                    self.__send_notification__(upload_result.track_name)
+                    Iftttnotify(self.ytdl_config).send(
+                        "Uploaded: {}".format(upload_result.track_name))
                 else:
                     message = '[{}] - {} - {}'.format(
                         upload_result.track_name,
@@ -86,23 +87,6 @@ class Downloadupload(object):
                         upload_result.track_dir)
                     self.logger.warning(message)
         gmu.logout()
-
-    def __send_notification__(self, title):
-        conn = http.client.HTTPSConnection("maker.ifttt.com")
-
-        payload = "{{ \"value1\" : \"Uploaded: {}\"}}".format(title)
-
-        headers = {
-            'content-type': "application/json"
-        }
-
-        conn.request("POST", "/trigger/{}/with/key/{}".format(
-            self.ytdl_config.notification_trigger_name,
-            self.ytdl_config.notification_trigger_key),
-            payload,
-            headers)
-
-        conn.getresponse()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
         if isdir(self.ytdl_config.uploads_folder_path):

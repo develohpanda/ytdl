@@ -43,7 +43,7 @@ class Ytdlconfiguration(object):
                 "googleplay_credential_file": "",
                 "uploader_name": "",
                 "playlist_id": "",
-                "max_youtube_item_load": "",
+                "max_youtube_item_load": 0,
                 "youtube_api_key": "",
                 "youtube_video_template": "",
                 "notification_trigger_name": "",

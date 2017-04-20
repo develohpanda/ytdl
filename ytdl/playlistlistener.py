@@ -3,10 +3,10 @@
 import logging
 from datetime import datetime
 
-import http.client
 from googleapiclient.discovery import build
 from ytdl.awsqueue import Awsqueue
 from ytdl.models import Payload
+from ytdl.notify import Iftttnotify
 from ytdl.oshelper import file_exists
 
 import dateutil.parser
@@ -77,30 +77,13 @@ class Playlistlistener(object):
 
         for entity in entities:
             aws.send_message(Payload(entity.link))
-            self.__send_notification__(entity.title)
+            Iftttnotify(self.ytdl_config).send(entity.title)
 
         self.logger.info("Sent %d messages to queue", len(entities))
 
         if len(entities) > 0:
             self.__save_last_upload_time__(
                 max(entity.upload_time for entity in entities))
-
-    def __send_notification__(self, title):
-        conn = http.client.HTTPSConnection("maker.ifttt.com")
-
-        payload = "{{ \"value1\" : \"Uploaded: {}\"}}".format(title)
-
-        headers = {
-            'content-type': "application/json"
-        }
-
-        conn.request("POST",
-                     "/trigger/{}/with/key/{}"
-                     .format(self.ytdl_config.notification_trigger_name,
-                             self.ytdl_config.notification_trigger_key),
-                     payload, headers)
-
-        conn.getresponse()
 
     def __get_last_upload_time__(self):
         if file_exists(self.ytdl_config.listener_time_file_path):
