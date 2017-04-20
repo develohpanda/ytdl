@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='ytdl',
-    version='1.0.17',
+    version='1.0.18',
     packages=['ytdl'],
     url='https://github.com/develohpanda/ytdl',
     description='YT download and upload to GMusic',
