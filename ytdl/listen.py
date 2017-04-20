@@ -6,16 +6,16 @@ import os
 import sys
 import time
 
-import oshelper
-from ytdlconfiguration import Ytdlconfiguration
-from playlistlistener import Playlistlistener
+from ytdl.oshelper import mkdir, absolute_files, remove
+from ytdl.ytdlconfiguration import Ytdlconfiguration
+from ytdl.playlistlistener import Playlistlistener
 
 def configure_loggers(config):
     "Configure logger"
 
     logging.getLogger('').handlers = []
 
-    oshelper.mkdir(config.log_folder)
+    mkdir(config.log_folder)
     logs_file_name = os.path.join(config.log_folder, str(datetime.date.today()) + "listen.log")
 
     logging.basicConfig(
@@ -50,10 +50,10 @@ def remove_old_log_files(config):
 
     current_time = time.time()
 
-    for file_name in oshelper.absolute_files(config.log_folder):
+    for file_name in absolute_files(config.log_folder):
         creation_time = os.path.getctime(file_name)
         if (current_time - creation_time) // (24 * 3600) >= 7:
-            oshelper.remove(file_name)
+            remove(file_name)
             logging.info('Removed %s', file_name)
 
 def listen():
