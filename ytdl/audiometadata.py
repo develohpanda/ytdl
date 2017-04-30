@@ -86,5 +86,5 @@ class AudioMetadata(object):
         audiofile['albumartist'] = str(info.uploader)
         audiofile['album'] = str(info.full_title)
         audiofile['title'] = str(info.full_title)
-        audiofile['website'] = str(info.url)
+        audiofile['comment'] = str(info.url)
         audiofile.save(v2_version=3)
