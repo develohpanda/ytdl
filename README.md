@@ -19,10 +19,10 @@ pip3 install git+https://github.com/develohpanda/ytdl --process-dependency-links
 ```
 
 ### Setup Gmusic Credentials in Python
-If running your Raspberry Pi headless, you'll have to do this from your computer then copy the file across
+If running your Raspberry Pi headless, you'll have to do this from your computer then copy the file across. Enter the path in 'filepath' to your location.
 ``` python
 import gmusicapi
-gmusicapi.clients.Musicmanager.perform_oauth(False)
+gmusicapi.clients.Musicmanager.perform_oauth(u'filepath', False)
 ```
 
 ### Execute the module
