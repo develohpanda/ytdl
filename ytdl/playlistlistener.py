@@ -4,10 +4,10 @@ import logging
 from datetime import datetime
 
 from googleapiclient.discovery import build
-from ytdl.awsqueue import Awsqueue
-from ytdl.models import Payload
-from ytdl.notify import Iftttnotify
-from ytdl.oshelper import file_exists
+from awsqueue import Awsqueue
+from models import Payload
+from notify import Iftttnotify
+from oshelper import file_exists
 
 import dateutil.parser
 import pytz

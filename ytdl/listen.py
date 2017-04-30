@@ -6,9 +6,9 @@ import os
 import sys
 import time
 
-from ytdl.oshelper import absolute_files, mkdir, remove
-from ytdl.playlistlistener import Playlistlistener
-from ytdl.ytdlconfiguration import Ytdlconfiguration
+from oshelper import absolute_files, mkdir, remove
+from playlistlistener import Playlistlistener
+from ytdlconfiguration import Ytdlconfiguration
 
 
 def configure_loggers(config):

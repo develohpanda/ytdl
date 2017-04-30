@@ -6,9 +6,9 @@ import os
 import sys
 import time
 
-from ytdl.downloadupload import Downloadupload
-from ytdl.oshelper import absolute_files, mkdir, remove
-from ytdl.ytdlconfiguration import Ytdlconfiguration
+from downloadupload import Downloadupload
+from oshelper import absolute_files, mkdir, remove
+from ytdlconfiguration import Ytdlconfiguration
 
 
 def configure_loggers(config):

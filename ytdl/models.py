@@ -3,7 +3,7 @@
 import json
 import logging
 
-from ytdl.oshelper import DEFAULT_FILE_NAME
+from oshelper import DEFAULT_FILE_NAME
 
 
 class TrackInfo(object):

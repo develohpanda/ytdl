@@ -3,7 +3,7 @@
 import configparser
 from os.path import expanduser, exists
 
-from ytdl.oshelper import join_paths, mkdir
+from oshelper import join_paths, mkdir
 
 
 class Ytdlconfiguration(object):
