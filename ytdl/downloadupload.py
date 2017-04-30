@@ -86,6 +86,13 @@ class Downloadupload(object):
                         upload_result.message,
                         upload_result.track_dir)
                     self.logger.warning(message)
+                    if "ALREADY_EXISTS" in upload_result.message:
+                        self.__failed_upload_tasks__(upload_result.track_dir)
+                        Iftttnotify(self.ytdl_config).send(
+                            "Track already exists: {}".format(
+                                upload_result.track_name)
+                        )
+
         gmu.logout()
 
     def __successful_upload_tasks__(self, track_file, track_dir):
@@ -95,7 +102,11 @@ class Downloadupload(object):
                              self.ytdl_config.uploads_folder_path)
 
         remove(track_dir)
-        self.logger.info('Track directory removed')
+        self.logger.info('Track directory as %s removed', track_dir)
+
+    def __failed_upload_tasks__(self, track_file, track_dir):
+        remove(track_dir)
+        self.logger.info('Track directory as %s removed', track_dir)
 
     def download_and_upload(self):
         "Main run method"
