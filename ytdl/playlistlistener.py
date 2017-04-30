@@ -5,9 +5,9 @@ from datetime import datetime
 
 from googleapiclient.discovery import build
 from ytdl.awsqueue import Awsqueue
-from ytdl.els import Payload
-from ytdl.ify import Iftttnotify
-from ytdl.elper import file_exists
+from ytdl.models import Payload
+from ytdl.notify import Iftttnotify
+from ytdl.oshelper import file_exists
 
 import dateutil.parser
 import pytz
