@@ -57,6 +57,6 @@ class AudioDownload(object):
             return DownloadResult(True, self.downloaded_to_folder)
         except DownloadError as dlerror:
             self.logger.error(dlerror)
-            return DownloadResult(False, 'Download failed')
+            return DownloadResult(False, 'Failed to download {}'.format(url))
         finally:
             try_delete_lock_file(self.downloaded_to_folder)

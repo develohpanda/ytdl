@@ -44,6 +44,7 @@ class Downloadupload(object):
                     'Message deleted from queue (%s)', download_result.message)
             else:
                 self.logger.info(download_result.message)
+                Iftttnotify(self.ytdl_config).send(download_result.message)
 
         return True
 
