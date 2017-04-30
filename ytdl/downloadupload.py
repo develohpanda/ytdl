@@ -5,13 +5,13 @@ from __future__ import unicode_literals
 import json
 import logging
 
-from audiodownload import AudioDownload
-from awsqueue import Awsqueue
-from customerrors import AuthError, DirectoryNotFoundError
-from gmupload import GoolgeMusicUploader
-from models import Payload
-from notify import Iftttnotify
-from oshelper import absolute_dirs, copy, isdir, remove
+from ytdl.audiodownload import AudioDownload
+from ytdl.awsqueue import Awsqueue
+from ytdl.customerrors import AuthError, DirectoryNotFoundError
+from ytdl.gmupload import GoolgeMusicUploader
+from ytdl.models import Payload
+from ytdl.notify import Iftttnotify
+from ytdl.oshelper import absolute_dirs, copy, isdir, remove
 
 
 class Downloadupload(object):

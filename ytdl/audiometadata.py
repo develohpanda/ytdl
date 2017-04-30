@@ -6,9 +6,9 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import APIC, ID3, error
 from mutagen.mp3 import MP3
 from PIL import Image
-from customerrors import FileNotFoundError
-from oshelper import (DEFAULT_FILE_NAME, dirname, filename_no_extension,
-                      join_paths)
+from ytdl.customerrors import FileNotFoundError
+from ytdl.oshelper import (DEFAULT_FILE_NAME, dirname, filename_no_extension,
+                           join_paths)
 
 
 class AudioMetadata(object):

@@ -3,12 +3,12 @@
 import logging
 
 from gmusicapi import Musicmanager, clients
-from audiometadata import AudioMetadata
-from customerrors import AuthError, DirectoryNotFoundError
-from models import TrackInfo, UploadResult
-from oshelper import (DEFAULT_FILE_NAME, absolute_files,
-                      get_album_art_file, get_track_file,
-                      get_track_info_file, isdir, lock_file_exists)
+from ytdl.audiometadata import AudioMetadata
+from ytdl.customerrors import AuthError, DirectoryNotFoundError
+from ytdl.models import TrackInfo, UploadResult
+from ytdl.oshelper import (DEFAULT_FILE_NAME, absolute_files,
+                           get_album_art_file, get_track_file,
+                           get_track_info_file, isdir, lock_file_exists)
 
 
 class GoolgeMusicUploader(object):
